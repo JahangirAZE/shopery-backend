@@ -29,6 +29,4 @@ public class UserRegisterRequestDto {
     )
     @NotBlank(message = "Password cannot be empty!")
     String password;
-    @NotBlank(message = "Phone cannot be empty!")
-    String phone;
 }

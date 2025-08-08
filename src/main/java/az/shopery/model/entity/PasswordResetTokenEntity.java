@@ -26,12 +26,10 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PasswordResetTokenEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
-
     @Column(name = "token", nullable = false, unique = true)
     String token;
     @Column(name = "expiry_date", nullable = false)

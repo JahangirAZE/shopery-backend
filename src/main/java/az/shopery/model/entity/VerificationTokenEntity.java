@@ -26,12 +26,10 @@ import org.hibernate.annotations.UuidGenerator;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VerificationTokenEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
-
     @Column(name = "token", nullable = false)
     String token;
     @Column(name = "expiry_date", nullable = false)
@@ -42,6 +40,4 @@ public class VerificationTokenEntity {
     String userEmail;
     @Column(name = "user_password", nullable = false)
     String userPassword;
-    @Column(name = "user_phone", nullable = false, unique = true)
-    String userPhone;
 }

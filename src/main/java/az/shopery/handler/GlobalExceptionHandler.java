@@ -3,7 +3,6 @@ package az.shopery.handler;
 import az.shopery.handler.exception.EmailAlreadyExistsException;
 import az.shopery.handler.exception.InvalidCredentialsException;
 import az.shopery.handler.exception.JwtAuthenticationException;
-import az.shopery.handler.exception.PhoneAlreadyExistsException;
 import az.shopery.handler.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -29,12 +28,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleEmailAlreadyExistsException(
             EmailAlreadyExistsException ex, HttpServletRequest request) {
-        return buildErrorResponse(ex, HttpStatus.CONFLICT, request);
-    }
-
-    @ExceptionHandler(PhoneAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handlePhoneAlreadyExistsException(
-            PhoneAlreadyExistsException ex, HttpServletRequest request) {
         return buildErrorResponse(ex, HttpStatus.CONFLICT, request);
     }
 
