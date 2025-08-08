@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 09082025_remove_user_phone_from_verification_tokens_table
+      author: Jahangir Alisoy
+      changes:
+        - dropColumn:
+            tableName: verification_tokens
+            columnName: user_phone

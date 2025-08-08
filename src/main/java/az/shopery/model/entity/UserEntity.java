@@ -34,28 +34,24 @@ import jakarta.persistence.EntityListeners;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
-
     @Column(name = "name", nullable = false, length = 100)
     String name;
     @Column(name = "password", nullable = false)
     String password;
     @Column(name = "email", nullable = false, unique = true)
     String email;
-    @Column(name = "phone", nullable = false, unique = true)
-    String phone;
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    @Column(name = "user_role", nullable = false)
-    UserRole userRole = UserRole.CUSTOMER;
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     Instant createdAt;
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     Instant updatedAt;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "user_role", nullable = false)
+    UserRole userRole = UserRole.CUSTOMER;
 }

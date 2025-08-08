@@ -2,7 +2,6 @@ package az.shopery.service.impl;
 
 import az.shopery.handler.exception.EmailAlreadyExistsException;
 import az.shopery.handler.exception.InvalidCredentialsException;
-import az.shopery.handler.exception.PhoneAlreadyExistsException;
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.model.dto.request.ForgotPasswordRequestDto;
 import az.shopery.model.dto.request.ResendCodeRequestDto;
@@ -49,11 +48,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public SuccessResponseDto<Void> register(UserRegisterRequestDto userRegisterRequestDto) {
-        if (userRepository.findByPhone(userRegisterRequestDto.getPhone()).isPresent()) {
-            throw new PhoneAlreadyExistsException(
-                    "Phone '" + userRegisterRequestDto.getPhone() + "' is already in use.");
-        }
-
         if (userRepository.findByEmail(userRegisterRequestDto.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException(
                     "Email '" + userRegisterRequestDto.getEmail() + "' is already in use.");
@@ -68,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
                 .userName(userRegisterRequestDto.getName())
                 .userEmail(userRegisterRequestDto.getEmail())
                 .userPassword(passwordEncoder.encode(userRegisterRequestDto.getPassword()))
-                .userPhone(userRegisterRequestDto.getPhone())
                 .token(passwordEncoder.encode(code))
                 .expiryDate(LocalDateTime.now().plusMinutes(5))
                 .build();
@@ -77,10 +70,7 @@ public class AuthServiceImpl implements AuthService {
             verificationTokenRepository.saveAndFlush(verificationToken);
         } catch (DataIntegrityViolationException e) {
             String message = e.getMostSpecificCause().getMessage();
-            if (message.contains("user_phone")) {
-                throw new PhoneAlreadyExistsException(
-                        "This phone number is currently being registered. Please try again later.");
-            } else if (message.contains("user_email")) {
+            if (message.contains("user_email")) {
                 throw new EmailAlreadyExistsException(
                         "This email address is currently being registered. Please try again later.");
             } else {
@@ -115,7 +105,6 @@ public class AuthServiceImpl implements AuthService {
                 .name(verificationTokenEntity.getUserName())
                 .email(verificationTokenEntity.getUserEmail())
                 .password(verificationTokenEntity.getUserPassword())
-                .phone(verificationTokenEntity.getUserPhone())
                 .build();
         userRepository.save(user);
 
