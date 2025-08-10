@@ -17,3 +17,5 @@ application:
   security:
     jwt:
       secret-key: dummy-test-secret
+  frontend:
+    base-url: http://localhost:4200/

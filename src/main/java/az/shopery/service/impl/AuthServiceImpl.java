@@ -233,11 +233,16 @@ public class AuthServiceImpl implements AuthService {
             if (user.getFailedLoginAttempts() > 0 || user.getAccountLockedUntil() != null) {
                 user.setFailedLoginAttempts(0);
                 user.setAccountLockedUntil(null);
+                userRepository.save(user);
             }
         } catch (Exception exception) {
             user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
             if (user.getFailedLoginAttempts() >= MAX_FAILED_ATTEMPTS) {
                 user.setAccountLockedUntil(LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES));
+            }
+            userRepository.save(user);
+
+            if (user.getAccountLockedUntil() != null) {
                 throw new InvalidCredentialsException("Too many failed login attempts. " +
                         "Your account has been locked for " + LOCK_DURATION_MINUTES + " minutes.");
             } else {
