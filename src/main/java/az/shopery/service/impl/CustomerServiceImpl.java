@@ -1,6 +1,7 @@
 package az.shopery.service.impl;
 
 import az.shopery.handler.exception.ResourceNotFoundException;
+import az.shopery.model.dto.request.CustomerProfileUpdateRequestDto;
 import az.shopery.model.dto.response.CustomerProfileResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.entity.CustomerEntity;
@@ -39,7 +40,33 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Customer profile not found for email: " + userEmail));
 
-        var customerResponse = CustomerProfileResponseDto.builder()
+        var customerResponse = mapToCustomerProfileResponseDto(customerEntity);
+
+        return SuccessResponseDto.of(customerResponse, "Customer profile retrieved successfully.");
+    }
+
+    @Override
+    @Transactional
+    public SuccessResponseDto<CustomerProfileResponseDto> updateCustomerProfile(String userEmail, CustomerProfileUpdateRequestDto customerProfileUpdateRequestDto) {
+        CustomerEntity customerEntity = customerRepository.findByUserEntityEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Customer profile not found for email: " + userEmail));
+
+        customerEntity.setFirstName(customerProfileUpdateRequestDto.getFirstName());
+        customerEntity.setLastName(customerProfileUpdateRequestDto.getLastName());
+        customerEntity.setPhone(customerProfileUpdateRequestDto.getPhone());
+        customerEntity.setDateOfBirth(customerProfileUpdateRequestDto.getDateOfBirth());
+
+        CustomerEntity updatedCustomerEntity = customerRepository.save(customerEntity);
+        log.info("Updated customer profile for user {}", userEmail);
+
+        var customerResponse = mapToCustomerProfileResponseDto(updatedCustomerEntity);
+
+        return SuccessResponseDto.of(customerResponse, "Customer profile updated successfully.");
+    }
+
+    private CustomerProfileResponseDto mapToCustomerProfileResponseDto(CustomerEntity customerEntity) {
+        return CustomerProfileResponseDto.builder()
                 .firstName(customerEntity.getFirstName())
                 .lastName(customerEntity.getLastName())
                 .email(customerEntity.getUserEntity().getEmail())
@@ -48,7 +75,5 @@ public class CustomerServiceImpl implements CustomerService {
                 .profilePhotoUrl(customerEntity.getProfilePhotoUrl())
                 .createdAt(customerEntity.getCreatedAt())
                 .build();
-
-        return SuccessResponseDto.of(customerResponse, "Customer profile retrieved successfully.");
     }
 }
