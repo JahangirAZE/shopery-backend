@@ -1,6 +1,7 @@
 package az.shopery.handler;
 
 import az.shopery.handler.exception.EmailAlreadyExistsException;
+import az.shopery.handler.exception.FileStorageException;
 import az.shopery.handler.exception.InvalidCredentialsException;
 import az.shopery.handler.exception.JwtAuthenticationException;
 import az.shopery.handler.exception.ResourceNotFoundException;
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(
             AccessDeniedException ex, HttpServletRequest request) {
         return buildErrorResponse(ex, HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ErrorResponse> handleFileStorageException(FileStorageException ex, HttpServletRequest request) {
+        if (ex.getMessage().contains("empty file")) {
+            return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+        }
+        return buildErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
