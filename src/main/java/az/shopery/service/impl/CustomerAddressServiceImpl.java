@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 
 @Service
 @Slf4j
@@ -51,13 +54,24 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
     @Override
     @Transactional
     public SuccessResponseDto<AddressResponseDto> updateAddress(
-            String userEmail, UUID addressId, AddressRequestDto addressRequestDto) {
+            String userEmail, String addressId, AddressRequestDto addressRequestDto) {
+        UUID parsedAddressId;
+        try {
+            parsedAddressId = UUID.fromString(addressId);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid UUID format for address ID: " + addressId
+            );
+        }
         log.info("Updating address {} for user {}", addressId, userEmail);
+
+
         CustomerEntity customerEntity = getCustomerByUserEmail(userEmail);
         AddressEntity addressEntity = customerEntity.getAddresses().stream()
-                .filter(a -> a.getId().equals(addressId))
+                .filter(a -> a.getId().equals(parsedAddressId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found for ID: " + addressId));
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found for ID: " + parsedAddressId));
 
         addressEntity.setAddressLine1(addressRequestDto.getAddressLine1());
         addressEntity.setAddressLine2(addressRequestDto.getAddressLine2());
@@ -66,14 +80,23 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
         addressEntity.setPostalCode(addressRequestDto.getPostalCode());
 
         customerRepository.save(customerEntity);
-        log.info("Successfully updated address with ID {} for user {}", addressId, userEmail);
+        log.info("Successfully updated address with ID {} for user {}", parsedAddressId, userEmail);
 
         return SuccessResponseDto.of(mapToAddressResponseDto(addressEntity), "Address updated successfully.");
     }
 
     @Override
     @Transactional
-    public SuccessResponseDto<Void> removeAddress(String userEmail, UUID addressId) {
+    public SuccessResponseDto<Void> removeAddress(String userEmail, String addressId) {
+        UUID parsedAddressId;
+        try {
+            parsedAddressId = UUID.fromString(addressId);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid UUID format for address ID: " + addressId
+            );
+        }
         log.info("Removing address {} for user {}", addressId, userEmail);
         CustomerEntity customerEntity = getCustomerByUserEmail(userEmail);
 
@@ -96,7 +119,16 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
 
     @Override
     @Transactional
-    public SuccessResponseDto<Void> setDefaultAddress(String userEmail, UUID addressId) {
+    public SuccessResponseDto<Void> setDefaultAddress(String userEmail, String addressId) {
+        UUID parsedAddressId;
+        try {
+            parsedAddressId = UUID.fromString(addressId);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid UUID format for address ID: " + addressId
+            );
+        }
         log.info("Setting default address to {} for user {}", addressId, userEmail);
         CustomerEntity customerEntity = getCustomerByUserEmail(userEmail);
 

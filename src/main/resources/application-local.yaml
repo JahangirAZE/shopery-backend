@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/shopery_db}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: shopery_user
+    password: shopery_pass
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
