@@ -1,5 +1,7 @@
 package az.shopery.model.dto.request;
 
+import az.shopery.utils.annotation.ValidAddressType;
+import az.shopery.utils.enums.AddressType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -15,6 +17,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AddressRequestDto {
+    @ValidAddressType(message = "You must specify a valid location type (e.g., HOUSE, OFFICE).")
+    AddressType addressType;
     @NotBlank(message = "Address line 1 cannot be empty!")
     @Size(max = 100, message = "Address line 1 is too long.")
     String addressLine1;

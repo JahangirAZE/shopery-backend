@@ -45,6 +45,7 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
                 .city(addressRequestDto.getCity())
                 .country(addressRequestDto.getCountry())
                 .postalCode(addressRequestDto.getPostalCode())
+                .addressType(addressRequestDto.getAddressType())
                 .isDefault(isDefault)
                 .customerEntity(customerEntity)
                 .build();
@@ -77,6 +78,7 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found for ID: " + parsedAddressId));
 
+        addressEntity.setAddressType(addressRequestDto.getAddressType());
         addressEntity.setAddressLine1(addressRequestDto.getAddressLine1());
         addressEntity.setAddressLine2(addressRequestDto.getAddressLine2());
         addressEntity.setCity(addressRequestDto.getCity());
@@ -174,6 +176,7 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
                 .city(entity.getCity())
                 .country(entity.getCountry())
                 .postalCode(entity.getPostalCode())
+                .addressType(entity.getAddressType())
                 .isDefault(entity.isDefault())
                 .build();
     }
