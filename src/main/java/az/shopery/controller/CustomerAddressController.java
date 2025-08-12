@@ -42,19 +42,19 @@ public class CustomerAddressController {
 
     @PutMapping("/{addressId}")
     public ResponseEntity<SuccessResponseDto<AddressResponseDto>> updateMyAddress(
-            Principal principal, @PathVariable UUID addressId, @Valid @RequestBody AddressRequestDto addressRequestDto) {
+            Principal principal, @PathVariable String addressId, @Valid @RequestBody AddressRequestDto addressRequestDto) {
         return ResponseEntity.ok(customerAddressService.updateAddress(principal.getName(), addressId, addressRequestDto));
     }
 
     @DeleteMapping("/{addressId}")
     public ResponseEntity<SuccessResponseDto<Void>> deleteMyAddress(
-            Principal principal, @PathVariable UUID addressId) {
+            Principal principal, @PathVariable String addressId) {
         return ResponseEntity.ok(customerAddressService.removeAddress(principal.getName(), addressId));
     }
 
     @PutMapping("/{addressId}/default")
     public ResponseEntity<SuccessResponseDto<Void>> setMyDefaultAddress(
-            Principal principal, @PathVariable UUID addressId) {
+            Principal principal, @PathVariable String addressId) {
         return ResponseEntity.ok(customerAddressService.setDefaultAddress(principal.getName(), addressId));
     }
 }

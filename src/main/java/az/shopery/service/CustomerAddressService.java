@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public interface CustomerAddressService {
     SuccessResponseDto<AddressResponseDto> addAddress(String userEmail, AddressRequestDto addressRequestDto);
-    SuccessResponseDto<AddressResponseDto> updateAddress(String userEmail, UUID addressId, AddressRequestDto addressRequestDto);
-    SuccessResponseDto<Void> removeAddress(String userEmail, UUID addressId);
-    SuccessResponseDto<Void> setDefaultAddress(String userEmail, UUID addressId);
+    SuccessResponseDto<AddressResponseDto> updateAddress(String userEmail, String addressId, AddressRequestDto addressRequestDto);
+    SuccessResponseDto<Void> removeAddress(String userEmail, String addressId);
+    SuccessResponseDto<Void> setDefaultAddress(String userEmail, String addressId);
     SuccessResponseDto<List<AddressResponseDto>> getAllAddresses(String userEmail);
 }
