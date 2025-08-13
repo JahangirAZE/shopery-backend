@@ -15,5 +15,5 @@ import lombok.experimental.FieldDefaults;
 public class BecomeMerchantResponseDto {
     String accessToken;
     String refreshToken;
-    MerchantProfileResponseDto merchantProfileResponseDto;
+    UserProfileResponseDto userProfileResponseDto;
 }

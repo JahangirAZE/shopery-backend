@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MerchantProfileResponseDto {
+public class UserProfileResponseDto {
     String firstName;
     String lastName;
     String email;
