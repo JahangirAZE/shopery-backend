@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 09082025_remove_phone_from_users_table
-      author: Jahangir Alisoy
-      changes:
-        - dropColumn:
-            tableName: users
-            columnName: phone
