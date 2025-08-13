@@ -3,7 +3,7 @@ package az.shopery.controller;
 import az.shopery.model.dto.request.AddressRequestDto;
 import az.shopery.model.dto.response.AddressResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
-import az.shopery.service.CustomerAddressService;
+import az.shopery.service.UserAddressService;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -20,40 +20,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/customers/me/addresses")
+@RequestMapping("/api/v1/users/me/addresses")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('CUSTOMER')")
-public class CustomerAddressController {
+@PreAuthorize("hasAnyAuthority('CUSTOMER', 'MERCHANT')")
+public class UserAddressController {
 
-    private final CustomerAddressService customerAddressService;
+    private final UserAddressService userAddressService;
 
     @GetMapping
-    public ResponseEntity<SuccessResponseDto<List<AddressResponseDto>>> getMyAddresses(
-            Principal principal) {
-        return ResponseEntity.ok(customerAddressService.getAllAddresses(principal.getName()));
+    public ResponseEntity<SuccessResponseDto<List<AddressResponseDto>>> getMyAddresses(Principal principal) {
+        return ResponseEntity.ok(userAddressService.getAll(principal.getName()));
     }
 
     @PostMapping
     public ResponseEntity<SuccessResponseDto<AddressResponseDto>> addMyAddress(
-            Principal principal, @Valid @RequestBody AddressRequestDto addressRequestDto) {
-        return ResponseEntity.ok(customerAddressService.addAddress(principal.getName(), addressRequestDto));
+            Principal principal,
+            @Valid @RequestBody AddressRequestDto addressRequestDto) {
+        return ResponseEntity.ok(userAddressService.add(principal.getName(), addressRequestDto));
     }
 
     @PutMapping("/{addressId}")
     public ResponseEntity<SuccessResponseDto<AddressResponseDto>> updateMyAddress(
-            Principal principal, @PathVariable String addressId, @Valid @RequestBody AddressRequestDto addressRequestDto) {
-        return ResponseEntity.ok(customerAddressService.updateAddress(principal.getName(), addressId, addressRequestDto));
+            Principal principal,
+            @PathVariable String addressId,
+            @Valid @RequestBody AddressRequestDto addressRequestDto) {
+        return ResponseEntity.ok(userAddressService.update(principal.getName(), addressId, addressRequestDto));
     }
 
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<SuccessResponseDto<Void>> deleteMyAddress(
-            Principal principal, @PathVariable String addressId) {
-        return ResponseEntity.ok(customerAddressService.removeAddress(principal.getName(), addressId));
+    public ResponseEntity<SuccessResponseDto<Void>> removeMyAddress(
+            Principal principal,
+            @PathVariable String addressId) {
+        return ResponseEntity.ok(userAddressService.remove(principal.getName(), addressId));
     }
 
     @PutMapping("/{addressId}/default")
     public ResponseEntity<SuccessResponseDto<Void>> setMyDefaultAddress(
-            Principal principal, @PathVariable String addressId) {
-        return ResponseEntity.ok(customerAddressService.setDefaultAddress(principal.getName(), addressId));
+            Principal principal,
+            @PathVariable String addressId) {
+        return ResponseEntity.ok(userAddressService.setDefault(principal.getName(), addressId));
     }
 }

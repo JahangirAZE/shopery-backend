@@ -19,7 +19,6 @@ import az.shopery.repository.PasswordResetTokenRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.repository.VerificationTokenRepository;
 import az.shopery.service.AuthService;
-import az.shopery.service.CustomerService;
 import az.shopery.service.EmailService;
 import az.shopery.utils.enums.VerificationProgress;
 import az.shopery.utils.security.JwtService;
@@ -51,7 +50,6 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
-    private final CustomerService customerService;
 
     @Override
     @Transactional
@@ -111,9 +109,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(verificationTokenEntity.getUserEmail())
                 .password(verificationTokenEntity.getUserPassword())
                 .build();
-        var savedUser = userRepository.save(user);
-
-        customerService.createCustomerProfile(savedUser);
+        userRepository.save(user);
 
         var UserDetails = User
                 .withUsername(user.getEmail())

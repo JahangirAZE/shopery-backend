@@ -18,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CustomerProfileUpdateRequestDto {
+public class UserProfileUpdateRequestDto {
     @NotBlank(message = "First name cannot be empty!")
     @Size(max = 30, message = "First name is too long.")
     @Pattern(regexp = "^[A-Za-z0-9]+$", message = "First name cannot contain special characters!")

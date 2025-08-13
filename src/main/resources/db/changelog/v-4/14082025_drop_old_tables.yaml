@@ -1,0 +1,97 @@
+databaseChangeLog:
+  - changeSet:
+      id: 14082025-drop-customers-table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: customers
+      changes:
+        - dropTable:
+            tableName: customers
+            cascadeConstraints: true
+
+  - changeSet:
+      id: 14082025-drop-merchants-table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: merchants
+      changes:
+        - dropTable:
+            tableName: merchants
+            cascadeConstraints: true
+
+  - changeSet:
+      id: 14082025-drop-customer-addresses-table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: customer_addresses
+      changes:
+        - dropTable:
+            tableName: customer_addresses
+            cascadeConstraints: true
+
+  - changeSet:
+      id: 14082025-drop-merchant-addresses-table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: merchant_addresses
+      changes:
+        - dropTable:
+            tableName: merchant_addresses
+            cascadeConstraints: true
+
+  - changeSet:
+      id: 14082025-drop-merchant-details-table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: merchant_details
+      changes:
+        - dropTable:
+            tableName: merchant_details
+            cascadeConstraints: true
+
+  - changeSet:
+      id: 14082025-drop-shops-table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: shops
+      changes:
+        - dropTable:
+            tableName: shops
+            cascadeConstraints: true
+  - changeSet:
+      id: 14082025-drop-shop_name-column-from-users
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: users
+            columnName: shop_name
+      changes:
+        - dropColumn:
+            tableName: users
+            columnName: shop_name
+
+  - changeSet:
+      id: 14082025-drop-shop_address-column-from-users
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - columnExists:
+            tableName: users
+            columnName: shop_address
+      changes:
+        - dropColumn:
+            tableName: users
+            columnName: shop_address

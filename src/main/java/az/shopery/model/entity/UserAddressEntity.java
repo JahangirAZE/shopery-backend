@@ -23,14 +23,14 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
-@Table(name = "merchant_addresses")
-@Builder
+@Table(name = "user_addresses")
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MerchantAddressEntity {
+public class UserAddressEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
@@ -45,14 +45,14 @@ public class MerchantAddressEntity {
     String country;
     @Column(name = "postal_code", nullable = false)
     String postalCode;
-    @Builder.Default
-    @Column(name = "address_type")
     @Enumerated(EnumType.STRING)
-    AddressType addressType = AddressType.HOUSE;
+    @Column(name = "address_type", nullable = false)
     @Builder.Default
-    @Column(name = "is_default")
+    AddressType addressType = AddressType.HOUSE;
+    @Column(name = "is_default", nullable = false)
+    @Builder.Default
     boolean isDefault = false;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "merchant_id", referencedColumnName = "id", nullable = false)
-    MerchantEntity merchantEntity;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    UserEntity user;
 }
