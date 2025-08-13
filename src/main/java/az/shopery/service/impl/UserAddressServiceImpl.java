@@ -57,13 +57,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional
     public SuccessResponseDto<AddressResponseDto> update(String userEmail, String addressId, AddressRequestDto addressRequestDto) {
-        UUID id = parse(addressId);
-        UserEntity userEntity = getUserByEmail(userEmail);
-        UserAddressEntity userAddressEntity = userAddressRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found with id: " + id));
-        if (!userAddressEntity.getUser().getId().equals(userEntity.getId())) {
-            throw new ResourceNotFoundException("Address does not belong to the given user.");
-        }
+        UserAddressEntity userAddressEntity = getAddressForUser(userEmail, addressId);
 
         userAddressEntity.setAddressLine1(addressRequestDto.getAddressLine1());
         userAddressEntity.setAddressLine2(addressRequestDto.getAddressLine2());
@@ -80,19 +74,14 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     @Transactional
     public SuccessResponseDto<Void> remove(String userEmail, String addressId) {
-        UUID id = parse(addressId);
-        UserEntity userEntity = getUserByEmail(userEmail);
-        UserAddressEntity userAddressEntity = userAddressRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found with id: " + id));
-        if (!userAddressEntity.getUser().getId().equals(userEntity.getId())) {
-            throw new ResourceNotFoundException("Address does not belong to the given user.");
-        }
-
+        UserAddressEntity userAddressEntity = getAddressForUser(userEmail, addressId);
         boolean wasDefault = userAddressEntity.isDefault();
+        UUID userId = userAddressEntity.getUser().getId();
+
         userAddressRepository.delete(userAddressEntity);
 
-        if (wasDefault && !userAddressRepository.findAllByUserId(userEntity.getId()).isEmpty() && !userAddressRepository.existsByUserIdAndIsDefaultTrue(userEntity.getId())) {
-            var first = userAddressRepository.findAllByUserId(userEntity.getId()).getFirst();
+        if (wasDefault && !userAddressRepository.findAllByUserId(userId).isEmpty() && !userAddressRepository.existsByUserIdAndIsDefaultTrue(userId)) {
+            var first = userAddressRepository.findAllByUserId(userId).getFirst();
             first.setDefault(true);
             userAddressRepository.save(first);
         }
@@ -151,5 +140,17 @@ public class UserAddressServiceImpl implements UserAddressService {
         } catch (IllegalArgumentException exception) {
             throw new InvalidUuidFormatException("It is not a valid UUID format!");
         }
+    }
+
+    private UserAddressEntity getAddressForUser(String userEmail, String addressId) {
+        UUID id = parse(addressId);
+        UserEntity userEntity = getUserByEmail(userEmail);
+        UserAddressEntity address = userAddressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found with id: " + id));
+
+        if (!address.getUser().getId().equals(userEntity.getId())) {
+            throw new ResourceNotFoundException("Address does not belong to the given user.");
+        }
+        return address;
     }
 }

@@ -63,8 +63,11 @@ public class UserEntity {
     @Builder.Default
     @Column(name = "user_role", nullable = false)
     UserRole userRole = UserRole.CUSTOMER;
+    @Column(name = "profile_photo_url")
     String profilePhotoUrl;
+    @Column(name = "phone")
     String phone;
     @Temporal(TemporalType.DATE)
+    @Column(name = "date_of_birth")
     Date dateOfBirth;
 }
