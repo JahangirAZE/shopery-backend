@@ -2,6 +2,7 @@ package az.shopery.configuration;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import az.shopery.repository.UserRepository;
 import az.shopery.utils.security.JwtAuthFilter;
 import az.shopery.utils.security.JwtService;
 import java.util.Arrays;
@@ -35,6 +36,7 @@ public class SecurityConfig {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     private static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui/**",
@@ -74,7 +76,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(new JwtAuthFilter(jwtService, userDetailsService),
+                .addFilterBefore(new JwtAuthFilter(jwtService, userDetailsService, userRepository),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

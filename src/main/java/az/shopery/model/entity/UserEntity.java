@@ -70,4 +70,6 @@ public class UserEntity {
     @Temporal(TemporalType.DATE)
     @Column(name = "date_of_birth")
     Date dateOfBirth;
+    @Column(name = "last_role_change_at")
+    Instant lastRoleChangeAt;
 }

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 14082025_add_column_to_users_table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                tableName: users
+                columnName: last_role_change_at
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: last_role_change_at
+                  type: timestamp with time zone

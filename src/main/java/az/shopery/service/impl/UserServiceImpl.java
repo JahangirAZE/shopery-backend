@@ -10,6 +10,8 @@ import az.shopery.repository.UserRepository;
 import az.shopery.service.UserService;
 import az.shopery.utils.enums.UserRole;
 import az.shopery.utils.security.JwtService;
+
+import java.time.Instant;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +75,7 @@ public class UserServiceImpl implements UserService {
         }
 
         userEntity.setUserRole(UserRole.MERCHANT);
+        userEntity.setLastRoleChangeAt(Instant.now());
         userRepository.save(userEntity);
 
         var userDetails = User.withUsername(userEmail)
