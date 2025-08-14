@@ -42,7 +42,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @UuidGenerator
     UUID id;
-    @Column(name = "name", nullable = false, length = 30)
+    @Column(name = "name", nullable = false, length = 40)
     String name;
     @Column(name = "password", nullable = false)
     String password;

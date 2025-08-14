@@ -18,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRegisterRequestDto {
     @NotBlank(message = "Name cannot be empty!")
-    @Size(min = 3, max = 30, message = "Name must be between 3 and 30 characters long.")
+    @Size(min = 3, max = 40, message = "Name must be between 3 and 40 characters long.")
     @Pattern(
             regexp = "^[A-Z][a-z]* [A-Z][a-z]*$",
             message = "Name must be in the format 'Firstname Lastname' (e.g., 'Jahangir Alisoy')"

@@ -20,11 +20,11 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserProfileUpdateRequestDto {
     @NotBlank(message = "First name cannot be empty!")
-    @Size(max = 30, message = "First name is too long.")
+    @Size(max = 20, message = "First name is too long.")
     @Pattern(regexp = "^[A-Za-z0-9]+$", message = "First name cannot contain special characters!")
     String firstName;
     @NotBlank(message = "Last name cannot be empty!")
-    @Size(max = 30, message = "Last name is too long.")
+    @Size(max = 20, message = "Last name is too long.")
     @Pattern(regexp = "^[A-Za-z0-9]+$", message = "Last name cannot contain special characters!")
     String lastName;
     @Size(max = 30, message = "Phone is too long.")

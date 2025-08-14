@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 15082025_update_users_table
+      author: Jahangir Alisoy
+      changes:
+        - modifyDataType:
+            tableName: users
+            columnName: name
+            newDataType: varchar(50)
