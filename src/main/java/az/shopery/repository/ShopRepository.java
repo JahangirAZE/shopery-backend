@@ -13,4 +13,5 @@ public interface ShopRepository extends JpaRepository<ShopEntity, UUID> {
     boolean existsByUser(UserEntity userEntity);
     boolean existsByShopName(String shopName);
     Optional<ShopEntity> findByUserEmail(String userEmail);
+    Optional<ShopEntity> findByShopName(String shopName);
 }

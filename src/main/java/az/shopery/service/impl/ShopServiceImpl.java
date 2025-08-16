@@ -1,15 +1,21 @@
 package az.shopery.service.impl;
 
+import az.shopery.handler.exception.InvalidUuidFormatException;
 import az.shopery.handler.exception.ResourceNotFoundException;
+import az.shopery.model.dto.response.ShopResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.UserShopResponseDto;
 import az.shopery.model.entity.ShopEntity;
 import az.shopery.repository.ShopRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.ShopService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -20,6 +26,7 @@ public class ShopServiceImpl implements ShopService {
     private final ShopRepository shopRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public SuccessResponseDto<UserShopResponseDto> getMyShop(String userEmail) {
         userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
@@ -36,5 +43,56 @@ public class ShopServiceImpl implements ShopService {
                 .build();
 
         return SuccessResponseDto.of(userShopResponseDto, "User shop retrieved successfully.");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SuccessResponseDto<Page<ShopResponseDto>> getAllShops(Pageable pageable) {
+        Page<ShopEntity> shopPage = shopRepository.findAll(pageable);
+        Page<ShopResponseDto> dtoPage = shopPage.map(this::mapToPublicShopDto);
+
+        log.info("Retrieved {} shops for page {} of size {}", dtoPage.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        return SuccessResponseDto.of(dtoPage, "Shops retrieved successfully.");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SuccessResponseDto<ShopResponseDto> getShopById(String shopId) {
+        UUID id = parse(shopId);
+        ShopEntity shopEntity = shopRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found for id: " + shopId));
+        var shopResponseDto = mapToPublicShopDto(shopEntity);
+
+        log.info("Shop retrieved successfully for id {}", shopId);
+        return SuccessResponseDto.of(shopResponseDto, "Shop retrieved successfully.");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SuccessResponseDto<ShopResponseDto> getShopByShopName(String shopName) {
+        ShopEntity shopEntity = shopRepository.findByShopName(shopName)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found for name: " + shopName));
+        var shopResponseDto = mapToPublicShopDto(shopEntity);
+
+        log.info("Shop retrieved successfully for name {}", shopName);
+        return SuccessResponseDto.of(shopResponseDto, "Shop retrieved successfully.");
+    }
+
+    private ShopResponseDto mapToPublicShopDto(ShopEntity shopEntity) {
+        return ShopResponseDto.builder()
+                .id(shopEntity.getId())
+                .shopName(shopEntity.getShopName())
+                .description(shopEntity.getDescription())
+                .rating(shopEntity.getRating())
+                .createdAt(shopEntity.getCreatedAt())
+                .build();
+    }
+
+    private UUID parse(String uuidString) {
+        try {
+            return UUID.fromString(uuidString);
+        } catch (IllegalArgumentException exception) {
+            throw new InvalidUuidFormatException("It is not a valid UUID format!");
+        }
     }
 }
