@@ -1,0 +1,69 @@
+package az.shopery.controller;
+
+import az.shopery.model.dto.request.ProductCreateRequestDto;
+import az.shopery.model.dto.response.ProductDetailResponseDto;
+import az.shopery.model.dto.response.ProductResponseDto;
+import az.shopery.model.dto.response.SuccessResponseDto;
+import az.shopery.service.ProductService;
+import jakarta.validation.Valid;
+import java.security.Principal;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@RequestMapping("/api/v1/merchant/products")
+@RequiredArgsConstructor
+@PreAuthorize("hasAuthority('MERCHANT')")
+public class MerchantProductController {
+
+    private final ProductService productService;
+
+    @PostMapping
+    public ResponseEntity<SuccessResponseDto<ProductDetailResponseDto>> addProduct(
+            Principal principal,
+            @RequestBody @Valid ProductCreateRequestDto productCreateRequestDto) {
+        return ResponseEntity.ok(productService.addProduct(principal.getName(), productCreateRequestDto));
+    }
+
+    @PostMapping(value = "/{productId}/image", consumes = {"multipart/form-data"})
+    public ResponseEntity<SuccessResponseDto<String>> uploadProductImage(
+            Principal principal,
+            @PathVariable String productId,
+            @RequestParam("image") MultipartFile imageFile) {
+        return ResponseEntity.ok(productService.updateProductImage(principal.getName(), productId, imageFile));
+    }
+
+    @GetMapping
+    public ResponseEntity<SuccessResponseDto<Page<ProductResponseDto>>> getMyProducts(
+            Principal principal,
+            Pageable pageable) {
+        return ResponseEntity.ok(productService.getMyProducts(principal.getName(), pageable));
+    }
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<SuccessResponseDto<ProductDetailResponseDto>> updateProduct(
+            Principal principal,
+            @PathVariable String productId,
+            @Valid @RequestBody ProductCreateRequestDto productCreateRequestDto) {
+        return ResponseEntity.ok(productService.updateProduct(principal.getName(), productId, productCreateRequestDto));
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<SuccessResponseDto<Void>> deleteProduct(
+            Principal principal,
+            @PathVariable String productId) {
+        return ResponseEntity.ok(productService.deleteProduct(principal.getName(), productId));
+    }
+
+    @DeleteMapping("/{productId}/image")
+    public ResponseEntity<SuccessResponseDto<Void>> deleteProductImage(
+            Principal principal,
+            @PathVariable String productId) {
+        return ResponseEntity.ok(productService.deleteProductImage(principal.getName(), productId));
+    }
+}
