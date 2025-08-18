@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 19082025_add_original_price_to_products_table
+      author: Jahangir Alisoy
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: products
+        - not:
+            columnExists:
+              tableName: products
+              columnName: original_price
+      changes:
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: original_price
+                  type: decimal(10, 2)

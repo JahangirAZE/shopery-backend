@@ -55,6 +55,8 @@ public class ProductEntity {
     String description;
     @Column(name = "current_price", precision = 10, scale = 2)
     BigDecimal currentPrice;
+    @Column(name = "original_price", precision = 10, scale = 2)
+    BigDecimal originalPrice;
     @Column(name = "image_url")
     String imageUrl;
     @Column(name = "stock_quantity", nullable = false)
