@@ -46,6 +46,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler(IllegalRequestException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalRequestException(
+            IllegalRequestException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
+
     @ExceptionHandler(InvalidUuidFormatException.class)
     public ResponseEntity<ErrorResponse> handleInvalidUuidFormatException(
             InvalidUuidFormatException ex, HttpServletRequest request) {
@@ -62,6 +68,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAddressLimitExceededException(
             AddressLimitExceededException ex, HttpServletRequest request) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(OwnProductInteractionException.class)
+    public ResponseEntity<ErrorResponse> handleOwnProductInteractionException(
+            OwnProductInteractionException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(FileStorageException.class)

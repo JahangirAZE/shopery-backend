@@ -4,6 +4,7 @@ import az.shopery.model.dto.request.ProductCreateRequestDto;
 import az.shopery.model.dto.response.ProductDetailResponseDto;
 import az.shopery.model.dto.response.ProductResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
+import az.shopery.model.entity.ProductEntity;
 import az.shopery.utils.enums.ProductCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +20,5 @@ public interface ProductService {
     SuccessResponseDto<ProductDetailResponseDto> getPublicProductById(String productId);
     SuccessResponseDto<Void> deleteProductImage(String userEmail, String productId);
     SuccessResponseDto<Page<ProductResponseDto>> getTopDiscountedProducts(Pageable pageable);
+    ProductResponseDto mapToBriefDto(ProductEntity productEntity);
 }

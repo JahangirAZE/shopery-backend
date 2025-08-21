@@ -1,6 +1,6 @@
-package az.shopery.model.dto.shared;
+package az.shopery.model.dto.request;
 
-import java.math.BigDecimal;
+import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DiscountDto {
-    int percentage;
-    BigDecimal originalPrice;
+public class CartItemUpdateRequestDto {
+    @Min(value = 1, message = "Quantity must be at least 1")
+    int quantity;
 }

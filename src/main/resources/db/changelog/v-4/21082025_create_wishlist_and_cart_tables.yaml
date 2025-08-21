@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 21082025_create_wishlists_table
+      author: Jahangir Alisoy
+      changes:
+        - createTable:
+            tableName: wishlists
+            columns:
+              - column: { name: "id", type: "UUID", constraints: { primaryKey: true, nullable: false } }
+              - column: { name: "user_id", type: "UUID", constraints: { nullable: false, unique: true, foreignKeyName: "fk_wishlist_user", references: "users(id)" } }
+  - changeSet:
+      id: 21082025_create_carts_table
+      author: Jahangir Alisoy
+      changes:
+        - createTable:
+            tableName: carts
+            columns:
+              - column: { name: "id", type: "UUID", constraints: { primaryKey: true, nullable: false } }
+              - column: { name: "user_id", type: "UUID", constraints: { nullable: false, unique: true, foreignKeyName: "fk_cart_user", references: "users(id)" } }
+  - changeSet:
+      id: 21082025_create_wishlist_products_join_table
+      author: Jahangir Alisoy
+      changes:
+        - createTable:
+            tableName: wishlist_products
+            columns:
+              - column: { name: "wishlist_id", type: "UUID", constraints: { nullable: false, foreignKeyName: "fk_wishlist_products_wishlist", references: "wishlists(id)" } }
+              - column: { name: "product_id", type: "UUID", constraints: { nullable: false, foreignKeyName: "fk_wishlist_products_product", references: "products(id)" } }
+        - addPrimaryKey:
+            tableName: wishlist_products
+            columnNames: "wishlist_id, product_id"
+  - changeSet:
+      id: 21082025_create_cart_items_table
+      author: Jahangir Alisoy
+      changes:
+        - createTable:
+            tableName: cart_items
+            columns:
+              - column: { name: "id", type: "UUID", constraints: { primaryKey: true, nullable: false } }
+              - column: { name: "cart_id", type: "UUID", constraints: { nullable: false, foreignKeyName: "fk_cart_item_cart", references: "carts(id)" } }
+              - column: { name: "product_id", type: "UUID", constraints: { nullable: false, foreignKeyName: "fk_cart_item_product", references: "products(id)" } }
+              - column: { name: "quantity", type: "int", constraints: { nullable: false } }

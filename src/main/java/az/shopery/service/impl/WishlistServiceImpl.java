@@ -1,0 +1,128 @@
+package az.shopery.service.impl;
+
+import az.shopery.handler.exception.InvalidUuidFormatException;
+import az.shopery.handler.exception.OwnProductInteractionException;
+import az.shopery.handler.exception.ResourceNotFoundException;
+import az.shopery.model.dto.response.ProductResponseDto;
+import az.shopery.model.dto.response.SuccessResponseDto;
+import az.shopery.model.dto.response.WishlistResponseDto;
+import az.shopery.model.entity.ProductEntity;
+import az.shopery.model.entity.UserEntity;
+import az.shopery.model.entity.WishlistEntity;
+import az.shopery.repository.ProductRepository;
+import az.shopery.repository.UserRepository;
+import az.shopery.repository.WishlistRepository;
+import az.shopery.service.ProductService;
+import az.shopery.service.WishlistService;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class WishlistServiceImpl implements WishlistService {
+
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final WishlistRepository wishlistRepository;
+    private final ProductService productService;
+
+    @Override
+    @Transactional(readOnly = true)
+    public SuccessResponseDto<WishlistResponseDto> getMyWishlist(String userEmail) {
+        UserEntity userEntity = findUser(userEmail);
+
+        Optional<WishlistEntity> wishlistOpt = wishlistRepository.findByUserWithProducts(userEntity);
+        if (wishlistOpt.isEmpty()) {
+            return SuccessResponseDto.of(WishlistResponseDto.builder()
+                    .products(Collections.emptySet())
+                    .build(), "Wishlist is empty.");
+        }
+        return SuccessResponseDto.of(mapToDto(wishlistOpt.get()), "Wishlist fetched successfully.");
+    }
+
+    @Override
+    @Transactional
+    public SuccessResponseDto<WishlistResponseDto> addProductToWishlist(String userEmail, String productId) {
+        UserEntity userEntity = findUser(userEmail);
+        ProductEntity productEntity = findProduct(parse(productId));
+
+        if (productRepository.existsByIdAndShop_User_Id(parse(productId), userEntity.getId())) {
+            throw new OwnProductInteractionException("You cannot add a product to your own wishlist.");
+        }
+
+        WishlistEntity wishlistEntity = findOrCreateWishlist(userEntity);
+        if (wishlistEntity.getProducts().add(productEntity)) {
+            log.info("Product '{}' added to wishlist for user {}", productEntity.getProductName(), userEmail);
+        } else {
+            log.warn("Product '{}' was already in the wishlist for user {}", productEntity.getProductName(), userEmail);
+        }
+
+        return SuccessResponseDto.of(mapToDto(wishlistEntity), "Product added to wishlist successfully.");
+    }
+
+    @Override
+    @Transactional
+    public SuccessResponseDto<WishlistResponseDto> removeProductFromWishlist(String userEmail, String productId) {
+        UserEntity userEntity = findUser(userEmail);
+        WishlistEntity wishlistEntity = wishlistRepository.findByUserWithProducts(userEntity)
+                .orElseThrow(() -> new ResourceNotFoundException("Cannot remove from a non-existent wishlist."));
+        ProductEntity productEntity = findProduct(parse(productId));
+
+        if (wishlistEntity.getProducts().remove(productEntity)) {
+            log.info("Product '{}' removed from wishlist for user {}", productEntity.getProductName(), userEmail);
+            return SuccessResponseDto.of(mapToDto(wishlistEntity), "Product removed from wishlist successfully.");
+        } else {
+            throw new ResourceNotFoundException("Product not found in wishlist.");
+        }
+    }
+
+    private UserEntity findUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
+    private ProductEntity findProduct(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+    }
+
+    private WishlistEntity findOrCreateWishlist(UserEntity userEntity) {
+        return wishlistRepository.findByUserWithProducts(userEntity).orElseGet(() -> {
+            log.info("No wishlist found for user '{}', creating a new one.", userEntity.getEmail());
+            WishlistEntity newWishlist = WishlistEntity.builder()
+                    .user(userEntity)
+                    .products(new HashSet<>())
+                    .build();
+            return wishlistRepository.save(newWishlist);
+        });
+    }
+
+    private WishlistResponseDto mapToDto(WishlistEntity wishlistEntity) {
+        Set<ProductResponseDto> productDtos = wishlistEntity.getProducts().stream()
+                .sorted(Comparator.comparing(ProductEntity::getProductName))
+                .map(productService::mapToBriefDto)
+                .collect(Collectors.toSet());
+
+        return WishlistResponseDto.builder()
+                .products(productDtos)
+                .build();
+    }
+
+    private UUID parse(String uuidString) {
+        try {
+            return UUID.fromString(uuidString);
+        } catch (IllegalArgumentException exception) {
+            throw new InvalidUuidFormatException("It is not a valid UUID format!");
+        }
+    }
+}

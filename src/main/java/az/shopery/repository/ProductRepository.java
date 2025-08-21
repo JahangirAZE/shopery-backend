@@ -19,4 +19,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
     Optional<ProductEntity> findByIdWithPriceHistory(@Param("id") UUID id);
     @Query("SELECT p FROM ProductEntity p WHERE p.originalPrice IS NOT NULL AND p.originalPrice > 0 AND p.currentPrice < p.originalPrice ORDER BY ((p.originalPrice - p.currentPrice) / p.originalPrice) DESC")
     Page<ProductEntity> findTopDiscountedProducts(Pageable pageable);
+    @Query("SELECT p FROM ProductEntity p JOIN FETCH p.shop WHERE p.id = :id")
+    Optional<ProductEntity> findByIdWithShop(@Param("id") UUID id);
+    boolean existsByIdAndShop_User_Id(UUID productId, UUID id);
 }

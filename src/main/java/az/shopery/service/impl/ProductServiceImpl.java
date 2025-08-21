@@ -207,28 +207,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductEntity getProductForShop(UUID productId, UUID shopId) {
-        ProductEntity product = productRepository.findById(productId)
+        ProductEntity product = productRepository.findByIdWithShop(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
-        UUID actualShopId;
-        try {
-            actualShopId = product.getShop().getId();
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not determine shop ownership for product: " + productId);
-        }
 
-        if (!actualShopId.equals(shopId)) {
-            throw new ResourceNotFoundException("You do not have product with id: " + productId + " in your shop.");
+        if (!product.getShop().getId().equals(shopId)) {
+            throw new ResourceNotFoundException("Product not found with id: " + productId);
         }
         return product;
     }
 
-    private ProductResponseDto mapToBriefDto(ProductEntity product) {
+    @Override
+    public ProductResponseDto mapToBriefDto(ProductEntity productEntity) {
         return ProductResponseDto.builder()
-                .id(product.getId())
-                .productName(product.getProductName())
-                .description(product.getDescription())
-                .imageUrl(generatePresignedUrl(product.getImageUrl()))
-                .discountDto(calculateDiscountFromOriginalPrice(product.getCurrentPrice(), product.getOriginalPrice()))
+                .id(productEntity.getId())
+                .productName(productEntity.getProductName())
+                .description(productEntity.getDescription())
+                .imageUrl(generatePresignedUrl(productEntity.getImageUrl()))
+                .currentPrice(productEntity.getCurrentPrice())
+                .discountDto(calculateDiscountFromOriginalPrice(productEntity.getCurrentPrice(), productEntity.getOriginalPrice()))
                 .build();
     }
 
@@ -248,6 +244,7 @@ public class ProductServiceImpl implements ProductService {
                 .productName(product.getProductName())
                 .description(product.getDescription())
                 .imageUrl(generatePresignedUrl(product.getImageUrl()))
+                .currentPrice(product.getCurrentPrice())
                 .discountDto(calculateDiscountFromOriginalPrice(product.getCurrentPrice(), product.getOriginalPrice()))
                 .stockQuantity(product.getStockQuantity())
                 .category(product.getCategory())
@@ -295,7 +292,6 @@ public class ProductServiceImpl implements ProductService {
         return DiscountDto.builder()
                 .percentage(percentage)
                 .originalPrice(originalPrice)
-                .currentPrice(currentPrice)
                 .build();
     }
 }
