@@ -86,6 +86,20 @@ public class WishlistServiceImpl implements WishlistService {
         }
     }
 
+    @Override
+    @Transactional
+    public SuccessResponseDto<WishlistResponseDto> removeAllProductsFromWishlist(String userEmail) {
+        UserEntity userEntity = findUser(userEmail);
+        WishlistEntity wishlistEntity = wishlistRepository.findByUserWithProducts(userEntity)
+                .orElseThrow(() -> new ResourceNotFoundException("Cannot remove from a non-existent wishlist."));
+
+        wishlistEntity.getProducts().clear();
+
+        WishlistEntity savedWishlist = wishlistRepository.save(wishlistEntity);
+        log.info("Wishlist has been saved successfully for user {}", userEmail);
+        return SuccessResponseDto.of(mapToDto(savedWishlist), "All items removed from wishlist successfully.");
+    }
+
     private UserEntity findUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));

@@ -1,10 +1,15 @@
-DROP TABLE IF EXISTS public.customer_addresses;
-DROP TABLE IF EXISTS public.customers;
+DROP TABLE IF EXISTS public.cart_items;
+DROP TABLE IF EXISTS public.carts;
 
-DROP TABLE IF EXISTS public.merchant_addresses;
-DROP TABLE IF EXISTS public.merchants;
+DROP TABLE IF EXISTS public.wishlist_products;
+DROP TABLE IF EXISTS public.wishlists;
 
 DROP TABLE IF EXISTS public.user_addresses;
+
+DROP TABLE IF EXISTS public.price_history;
+DROP TABLE IF EXISTS public.products;
+
+DROP TABLE IF EXISTS public.shops;
 
 DROP TABLE IF EXISTS public.users;
 

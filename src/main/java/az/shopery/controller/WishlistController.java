@@ -40,4 +40,9 @@ public class WishlistController {
             @PathVariable String productId) {
         return ResponseEntity.ok(wishlistService.removeProductFromWishlist(principal.getName(), productId));
     }
+
+    @DeleteMapping
+    public ResponseEntity<SuccessResponseDto<WishlistResponseDto>> removeAllProductsFromWishlist(Principal principal) {
+        return ResponseEntity.ok(wishlistService.removeAllProductsFromWishlist(principal.getName()));
+    }
 }

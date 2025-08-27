@@ -7,4 +7,5 @@ public interface WishlistService {
     SuccessResponseDto<WishlistResponseDto> getMyWishlist(String userEmail);
     SuccessResponseDto<WishlistResponseDto> addProductToWishlist(String userEmail, String productId);
     SuccessResponseDto<WishlistResponseDto> removeProductFromWishlist(String userEmail, String productId);
+    SuccessResponseDto<WishlistResponseDto> removeAllProductsFromWishlist(String userEmail);
 }

@@ -8,5 +8,6 @@ public interface CartService {
     SuccessResponseDto<CartResponseDto> addProductToCart(String userEmail, String productId, int quantity);
     SuccessResponseDto<CartResponseDto> updateProductQuantity(String userEmail, String productId, int quantity);
     SuccessResponseDto<CartResponseDto> removeProductFromCart(String userEmail, String productId);
+    SuccessResponseDto<CartResponseDto> removeAllProductsFromCart(String userEmail);
     SuccessResponseDto<CartResponseDto> moveProductFromWishlistToCart(String userEmail, String productId);
 }
