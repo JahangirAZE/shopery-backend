@@ -54,6 +54,11 @@ public class CartController {
         return ResponseEntity.ok(cartService.removeProductFromCart(principal.getName(), productId));
     }
 
+    @DeleteMapping
+    public ResponseEntity<SuccessResponseDto<CartResponseDto>> removeAllProductsFromCart(Principal principal) {
+        return ResponseEntity.ok(cartService.removeAllProductsFromCart(principal.getName()));
+    }
+
     @PostMapping("/move-from-wishlist/{productId}")
     public ResponseEntity<SuccessResponseDto<CartResponseDto>> moveFromWishlist(
             Principal principal,

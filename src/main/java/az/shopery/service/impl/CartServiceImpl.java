@@ -145,6 +145,19 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
+    public SuccessResponseDto<CartResponseDto> removeAllProductsFromCart(String userEmail) {
+        UserEntity userEntity = findUser(userEmail);
+        CartEntity cartEntity = findOrCreateCart(userEntity);
+
+        cartEntity.getItems().clear();
+
+        CartEntity savedCart = cartRepository.save(cartEntity);
+        log.info("All products removed from cart for user {}", userEmail);
+        return SuccessResponseDto.of(mapToDto(savedCart), "All products removed from cart successfully.");
+    }
+
+    @Override
+    @Transactional
     public SuccessResponseDto<CartResponseDto> moveProductFromWishlistToCart(String userEmail, String productId) {
         UserEntity userEntity = findUser(userEmail);
         ProductEntity productEntity = findProduct(parse(productId));
