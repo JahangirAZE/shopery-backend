@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.util.HtmlUtils;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -77,11 +79,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(FileStorageException.class)
-    public ResponseEntity<ErrorResponse> handleFileStorageException(FileStorageException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleFileStorageException(
+            FileStorageException ex, HttpServletRequest request) {
         if (ex.getMessage().contains("empty file")) {
             return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
         }
         return buildErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ErrorResponse> handleExternalServiceException(
+            ExternalServiceException ex, HttpServletRequest request) {
+        log.error("External service error: {}", ex.getMessage());
+        return buildErrorResponse(ex, HttpStatus.SERVICE_UNAVAILABLE, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
