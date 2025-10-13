@@ -2,14 +2,18 @@ package az.shopery.service.impl;
 
 import az.shopery.handler.exception.InvalidUuidFormatException;
 import az.shopery.handler.exception.ResourceNotFoundException;
+import az.shopery.model.dto.response.ProductResponseDto;
 import az.shopery.model.dto.response.ShopResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.UserShopResponseDto;
+import az.shopery.model.entity.ProductEntity;
 import az.shopery.model.entity.ShopEntity;
 import az.shopery.repository.ShopRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.ShopService;
+import java.util.Collections;
 import java.util.UUID;
+import az.shopery.utils.common.DiscountCalculator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,7 +53,7 @@ public class ShopServiceImpl implements ShopService {
     @Transactional(readOnly = true)
     public SuccessResponseDto<Page<ShopResponseDto>> getAllShops(Pageable pageable) {
         Page<ShopEntity> shopPage = shopRepository.findAll(pageable);
-        Page<ShopResponseDto> dtoPage = shopPage.map(this::mapToPublicShopDto);
+        Page<ShopResponseDto> dtoPage = shopPage.map(this::mapToPublicShopDtoWithoutProducts);
 
         log.info("Retrieved {} shops for page {} of size {}", dtoPage.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return SuccessResponseDto.of(dtoPage, "Shops retrieved successfully.");
@@ -59,9 +63,9 @@ public class ShopServiceImpl implements ShopService {
     @Transactional(readOnly = true)
     public SuccessResponseDto<ShopResponseDto> getShopById(String shopId) {
         UUID id = parse(shopId);
-        ShopEntity shopEntity = shopRepository.findById(id)
+        ShopEntity shopEntity = shopRepository.findByIdWithProducts(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found for id: " + shopId));
-        var shopResponseDto = mapToPublicShopDto(shopEntity);
+        var shopResponseDto = mapToPublicShopDtoWithProducts(shopEntity);
 
         log.info("Shop retrieved successfully for id {}", shopId);
         return SuccessResponseDto.of(shopResponseDto, "Shop retrieved successfully.");
@@ -70,21 +74,48 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public SuccessResponseDto<ShopResponseDto> getShopByShopName(String shopName) {
-        ShopEntity shopEntity = shopRepository.findByShopName(shopName)
+        ShopEntity shopEntity = shopRepository.findByShopNameWithProducts(shopName)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found for name: " + shopName));
-        var shopResponseDto = mapToPublicShopDto(shopEntity);
+        var shopResponseDto = mapToPublicShopDtoWithProducts(shopEntity);
 
         log.info("Shop retrieved successfully for name {}", shopName);
         return SuccessResponseDto.of(shopResponseDto, "Shop retrieved successfully.");
     }
 
-    private ShopResponseDto mapToPublicShopDto(ShopEntity shopEntity) {
+    private ShopResponseDto mapToPublicShopDtoWithoutProducts(ShopEntity shopEntity) {
         return ShopResponseDto.builder()
                 .id(shopEntity.getId())
                 .shopName(shopEntity.getShopName())
                 .description(shopEntity.getDescription())
                 .rating(shopEntity.getRating())
                 .createdAt(shopEntity.getCreatedAt())
+                .products(Collections.emptyList())
+                .build();
+    }
+
+    private ShopResponseDto mapToPublicShopDtoWithProducts(ShopEntity shopEntity) {
+        return ShopResponseDto.builder()
+                .id(shopEntity.getId())
+                .shopName(shopEntity.getShopName())
+                .description(shopEntity.getDescription())
+                .rating(shopEntity.getRating())
+                .createdAt(shopEntity.getCreatedAt())
+                .products(shopEntity.getProducts().stream()
+                        .map(this::mapToPublicProductDto)
+                        .toList())
+                .build();
+    }
+
+    private ProductResponseDto mapToPublicProductDto(ProductEntity productEntity) {
+        return ProductResponseDto.builder()
+                .id(productEntity.getId())
+                .productName(productEntity.getProductName())
+                .description(productEntity.getDescription())
+                .imageUrl(productEntity.getImageUrl())
+                .currentPrice(productEntity.getCurrentPrice())
+                .discountDto(DiscountCalculator.calculateDiscountFromOriginalPrice(
+                        productEntity.getCurrentPrice(),
+                        productEntity.getOriginalPrice()))
                 .build();
     }
 
