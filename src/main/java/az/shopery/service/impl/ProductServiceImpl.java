@@ -6,7 +6,6 @@ import az.shopery.model.dto.request.ProductCreateRequestDto;
 import az.shopery.model.dto.response.ProductDetailResponseDto;
 import az.shopery.model.dto.response.ProductResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
-import az.shopery.model.dto.shared.DiscountDto;
 import az.shopery.model.dto.shared.PriceHistoryDto;
 import az.shopery.model.entity.PriceHistoryEntity;
 import az.shopery.model.entity.ProductEntity;
@@ -17,10 +16,9 @@ import az.shopery.repository.ShopRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.ProductService;
 import az.shopery.utils.aws.FileStorageService;
+import az.shopery.utils.common.DiscountCalculator;
 import az.shopery.utils.enums.ProductCategory;
 import az.shopery.utils.enums.ProductCondition;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -224,7 +222,9 @@ public class ProductServiceImpl implements ProductService {
                 .description(productEntity.getDescription())
                 .imageUrl(generatePresignedUrl(productEntity.getImageUrl()))
                 .currentPrice(productEntity.getCurrentPrice())
-                .discountDto(calculateDiscountFromOriginalPrice(productEntity.getCurrentPrice(), productEntity.getOriginalPrice()))
+                .discountDto(DiscountCalculator.calculateDiscountFromOriginalPrice(
+                        productEntity.getCurrentPrice(),
+                        productEntity.getOriginalPrice()))
                 .build();
     }
 
@@ -245,7 +245,9 @@ public class ProductServiceImpl implements ProductService {
                 .description(product.getDescription())
                 .imageUrl(generatePresignedUrl(product.getImageUrl()))
                 .currentPrice(product.getCurrentPrice())
-                .discountDto(calculateDiscountFromOriginalPrice(product.getCurrentPrice(), product.getOriginalPrice()))
+                .discountDto(DiscountCalculator.calculateDiscountFromOriginalPrice(
+                        product.getCurrentPrice(),
+                        product.getOriginalPrice()))
                 .stockQuantity(product.getStockQuantity())
                 .category(product.getCategory())
                 .condition(product.getCondition())
@@ -279,19 +281,5 @@ public class ProductServiceImpl implements ProductService {
             log.error("Failed to generate presigned URL for key: {}", fileKey, e);
             return null;
         }
-    }
-
-    private DiscountDto calculateDiscountFromOriginalPrice(BigDecimal currentPrice, BigDecimal originalPrice) {
-        if (originalPrice == null || currentPrice.compareTo(originalPrice) >= 0) {
-            return null;
-        }
-
-        BigDecimal difference = originalPrice.subtract(currentPrice);
-        BigDecimal percentageDecimal = difference.divide(originalPrice, 2, RoundingMode.HALF_UP);
-        int percentage = percentageDecimal.multiply(new BigDecimal("100")).intValue();
-        return DiscountDto.builder()
-                .percentage(percentage)
-                .originalPrice(originalPrice)
-                .build();
     }
 }
