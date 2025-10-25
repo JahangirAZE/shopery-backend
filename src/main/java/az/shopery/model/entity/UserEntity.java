@@ -1,19 +1,8 @@
 package az.shopery.model.entity;
 
 import az.shopery.utils.enums.UserRole;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -29,6 +18,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -78,4 +68,6 @@ public class UserEntity {
     WishlistEntity wishlist;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     CartEntity cart;
+    @OneToMany(mappedBy = "user")
+    List<BlogEntity> blogs;
 }
