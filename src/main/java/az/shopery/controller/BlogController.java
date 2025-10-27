@@ -16,6 +16,7 @@ import java.util.List;
 @RequestMapping("/api/v1/users/me/blogs")
 @RequiredArgsConstructor
 public class BlogController {
+
     private final BlogService blogService;
 
     @GetMapping
@@ -58,7 +59,7 @@ public class BlogController {
 
     @PutMapping("/{blogId}")
     public ResponseEntity<SuccessResponseDto<BlogResponseDto>> updateMyBlog(Principal principal,
-                                                                            @RequestBody BlogRequestDto blogRequestDto,
+                                                                            @RequestBody @Valid BlogRequestDto blogRequestDto,
                                                                             @PathVariable String blogId) {
         return ResponseEntity.ok(blogService.updateMyBlog(principal.getName(), blogRequestDto, blogId));
     }

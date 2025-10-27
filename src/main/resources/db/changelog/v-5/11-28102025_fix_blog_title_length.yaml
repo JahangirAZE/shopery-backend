@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 28102025_fix_blog_title_length
+      author: Jahangir Alisoy
+      changes:
+        - modifyDataType:
+            tableName: blogs
+            columnName: blog_title
+            newDataType: VARCHAR(40)
