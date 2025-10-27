@@ -1,10 +1,12 @@
 package az.shopery.service.impl;
 
 import static az.shopery.utils.common.UuidUtils.parse;
+
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.model.dto.request.BlogRequestDto;
 import az.shopery.model.dto.response.BlogResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
+import az.shopery.model.dto.shared.AuthorDto;
 import az.shopery.model.entity.BlogEntity;
 import az.shopery.model.entity.UserEntity;
 import az.shopery.repository.BlogRepository;
@@ -31,6 +33,7 @@ public class BlogServiceImpl implements BlogService {
     private final S3FileUtil s3FileUtil;
 
     @Override
+    @Transactional
     public SuccessResponseDto<List<BlogResponseDto>> getMyBlogs(String userEmail) {
         List<BlogEntity> blogs = blogRepository.getBlogsByUserEmail(userEmail);
         return SuccessResponseDto.of(blogs.stream()
@@ -39,21 +42,14 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    @Transactional
     public SuccessResponseDto<BlogResponseDto> getMyBlog(String userEmail, String blogId) {
-        UUID id = parse(blogId);
-        BlogEntity blogEntity = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog with id: " + blogId + " not found"));
-        UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email: " + userEmail + " not found"));
-
-        if(!blogEntity.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Blog not found with id: " + id);
-        }
-
+        BlogEntity blogEntity = getUserOwnedBlog(blogId, userEmail);
         return SuccessResponseDto.of(mapToDto(blogEntity), "Your blog retrieved successfully");
     }
 
     @Override
+    @Transactional
     public SuccessResponseDto<List<BlogResponseDto>> getAllBlogs() {
         List<BlogEntity> blogs = blogRepository.findAll();
         return SuccessResponseDto.of(
@@ -65,19 +61,11 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public SuccessResponseDto<Void> deleteMyBlog(String userEmail, String blogId) {
-        UUID id = parse(blogId);
-        userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email " + userEmail + " not found."));
-        BlogEntity blogEntity = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found."));
-
-        if(!blogEntity.getUser().getEmail().equals(userEmail)) {
-            throw new ResourceNotFoundException("Blog not found with id: " + id);
-        }
+        BlogEntity blogEntity = getUserOwnedBlog(blogId, userEmail);
 
         String imageKey = blogEntity.getImageUrl();
         s3FileUtil.deleteFileIfExists(imageKey);
-        blogRepository.deleteById(id);
+        blogRepository.delete(blogEntity);
         return SuccessResponseDto.of("Blog deleted successfully!");
     }
 
@@ -99,14 +87,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public SuccessResponseDto<String> updateBlogImage(String userEmail, String blogId, MultipartFile imageFile) {
-        UUID id = parse(blogId);
-        BlogEntity blogEntity = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found."));
-        UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email " + userEmail + " not found."));
-        if(!blogEntity.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Blog not found with id: " + id);
-        }
+        BlogEntity blogEntity = getUserOwnedBlog(blogId, userEmail);
 
         String oldImageUrlKey = blogEntity.getImageUrl();
         String newImageUrlKey = s3FileUtil.uploadNewFile(oldImageUrlKey, imageFile);
@@ -120,16 +101,9 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public SuccessResponseDto<String> deleteBlogImage(String userEmail, String blogId) {
-        UUID id = parse(blogId);
-        BlogEntity blogEntity = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found."));
-        UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email " + userEmail + " not found."));
-        String imageKey = blogEntity.getImageUrl();
+        BlogEntity blogEntity = getUserOwnedBlog(blogId, userEmail);
 
-        if(!blogEntity.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Blog not found with id: " + id);
-        }
+        String imageKey = blogEntity.getImageUrl();
         if(Objects.isNull(imageKey) || imageKey.isBlank()) {
             throw new ResourceNotFoundException("No blog image found for blog: " + blogId);
         }
@@ -145,6 +119,16 @@ public class BlogServiceImpl implements BlogService {
     @Override
     @Transactional
     public SuccessResponseDto<BlogResponseDto> updateMyBlog(String userEmail, BlogRequestDto blogRequestDto, String blogId) {
+        BlogEntity blogEntity = getUserOwnedBlog(blogId, userEmail);
+
+        blogEntity.setBlogTitle(blogRequestDto.getTitle());
+        blogEntity.setContent(blogRequestDto.getContent());
+        BlogEntity updatedBlogEntity = blogRepository.save(blogEntity);
+
+        return SuccessResponseDto.of(mapToDto(updatedBlogEntity), "Blog updated successfully!");
+    }
+
+    private BlogEntity getUserOwnedBlog(String blogId, String userEmail) {
         UUID id = parse(blogId);
         BlogEntity blogEntity = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found."));
@@ -155,11 +139,7 @@ public class BlogServiceImpl implements BlogService {
             throw new ResourceNotFoundException("Blog not found with id: " + id);
         }
 
-        blogEntity.setBlogTitle(blogRequestDto.getTitle());
-        blogEntity.setContent(blogRequestDto.getContent());
-        BlogEntity updatedBlogEntity = blogRepository.save(blogEntity);
-        BlogResponseDto blogResponseDto = mapToDto(updatedBlogEntity);
-        return SuccessResponseDto.of(blogResponseDto, "Blog updated successfully!");
+        return blogEntity;
     }
 
     private BlogResponseDto mapToDto(BlogEntity blogEntity) {
@@ -170,6 +150,10 @@ public class BlogServiceImpl implements BlogService {
                 .imageUrl(blogEntity.getImageUrl())
                 .createdAt(blogEntity.getCreatedAt())
                 .updatedAt(blogEntity.getUpdatedAt())
+                .author(AuthorDto.builder()
+                        .name(blogEntity.getUser().getName())
+                        .profilePhotoUrl(blogEntity.getUser().getProfilePhotoUrl())
+                        .build())
                 .build();
     }
 }
