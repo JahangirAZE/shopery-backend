@@ -22,7 +22,7 @@ public class UserPhotoController {
 
     private final UserPhotoService userPhotoService;
 
-    @PostMapping
+    @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<SuccessResponseDto<String>> uploadMyProfilePhoto(
             Principal principal,
             @RequestParam("file") MultipartFile multipartFile) {

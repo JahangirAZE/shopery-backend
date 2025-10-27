@@ -68,6 +68,6 @@ public class UserEntity {
     WishlistEntity wishlist;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     CartEntity cart;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     List<BlogEntity> blogs;
 }

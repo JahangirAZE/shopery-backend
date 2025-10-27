@@ -1,5 +1,6 @@
 package az.shopery.model.dto.response;
 
+import az.shopery.model.dto.shared.AuthorDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,4 +22,5 @@ public class BlogResponseDto {
     Instant createdAt;
     Instant updatedAt;
     String imageUrl;
+    AuthorDto author;
 }
