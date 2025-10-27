@@ -38,14 +38,14 @@ public class BlogServiceImpl implements BlogService {
         List<BlogEntity> blogs = blogRepository.getBlogsByUserEmail(userEmail);
         return SuccessResponseDto.of(blogs.stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList()), "Your blogs retrieved successfully");
+                .collect(Collectors.toList()), "Your blogs retrieved successfully!");
     }
 
     @Override
     @Transactional
     public SuccessResponseDto<BlogResponseDto> getMyBlog(String userEmail, String blogId) {
         BlogEntity blogEntity = getUserOwnedBlog(blogId, userEmail);
-        return SuccessResponseDto.of(mapToDto(blogEntity), "Your blog retrieved successfully");
+        return SuccessResponseDto.of(mapToDto(blogEntity), "Your blog retrieved successfully!");
     }
 
     @Override

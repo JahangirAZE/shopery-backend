@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 28102025_fix_timestamp_defaults
+      author: Jahangir Alisoy
+      changes:
+        - dropDefaultValue:
+            tableName: blogs
+            columnName: created_at
+        - dropDefaultValue:
+            tableName: blogs
+            columnName: updated_at
