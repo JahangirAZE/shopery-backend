@@ -1,7 +1,6 @@
 package az.shopery.service.impl;
 
 import static az.shopery.utils.common.UuidUtils.parse;
-
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.model.dto.request.BlogRequestDto;
 import az.shopery.model.dto.response.BlogResponseDto;
@@ -144,6 +143,9 @@ public class BlogServiceImpl implements BlogService {
                 .imageUrl(blogEntity.getImageUrl())
                 .createdAt(blogEntity.getCreatedAt())
                 .updatedAt(blogEntity.getUpdatedAt())
+                .likeCount(blogEntity.getBlogLikes() != null
+                        ? blogEntity.getBlogLikes().size()
+                        : 0)
                 .author(AuthorDto.builder()
                         .name(blogEntity.getUser().getName())
                         .profilePhotoUrl(blogEntity.getUser().getProfilePhotoUrl())
