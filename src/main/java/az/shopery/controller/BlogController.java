@@ -74,7 +74,7 @@ public class BlogController {
         return ResponseEntity.ok(blogService.updateMyBlog(principal.getName(), blogRequestDto, blogId));
     }
 
-    @PostMapping("/blogs/{blogId}/like")
+    @PostMapping("/{blogId}/like")
     public ResponseEntity<SuccessResponseDto<Void>> likeBlog(
             Principal principal,
             @PathVariable String blogId) {
