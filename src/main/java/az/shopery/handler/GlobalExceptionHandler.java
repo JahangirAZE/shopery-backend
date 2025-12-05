@@ -1,6 +1,17 @@
 package az.shopery.handler;
 
-import az.shopery.handler.exception.*;
+import az.shopery.handler.exception.AddressLimitExceededException;
+import az.shopery.handler.exception.CooldownNotMetException;
+import az.shopery.handler.exception.EmailAlreadyExistsException;
+import az.shopery.handler.exception.ExternalServiceException;
+import az.shopery.handler.exception.FileStorageException;
+import az.shopery.handler.exception.IllegalRequestException;
+import az.shopery.handler.exception.InvalidCredentialsException;
+import az.shopery.handler.exception.InvalidUuidFormatException;
+import az.shopery.handler.exception.JwtAuthenticationException;
+import az.shopery.handler.exception.OwnProductInteractionException;
+import az.shopery.handler.exception.ResourceNotFoundException;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -113,6 +124,14 @@ public class GlobalExceptionHandler {
         body.put("errors", errors);
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitException(RequestNotPermitted ex,
+                                                                  HttpServletRequest request) {
+        String message = "Rate limit exceeded, please try again later.";
+        Exception customEx = new RuntimeException(message, ex);
+        return buildErrorResponse(customEx, HttpStatus.TOO_MANY_REQUESTS, request);
     }
 
     @ExceptionHandler(Exception.class)

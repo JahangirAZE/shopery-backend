@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -25,42 +26,49 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PostMapping("/register")
     public ResponseEntity<SuccessResponseDto<Void>> register(
             @Valid @RequestBody UserRegisterRequestDto userRegisterRequestDto) {
         return ResponseEntity.ok(authService.register(userRegisterRequestDto));
     }
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PostMapping("/login")
     public ResponseEntity<SuccessResponseDto<UserAuthResponseDto>> login(
             @Valid @RequestBody UserLoginRequestDto userLoginRequestDto) {
         return ResponseEntity.ok(authService.login(userLoginRequestDto));
     }
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PostMapping("/verify")
     public ResponseEntity<SuccessResponseDto<UserAuthResponseDto>> verifyAccount(
             @Valid @RequestBody UserVerificationRequestDto userVerificationRequestDto) {
         return ResponseEntity.ok(authService.verifyAccount(userVerificationRequestDto));
     }
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PostMapping("/resend-code")
     public ResponseEntity<SuccessResponseDto<Void>> resendCode(
             @Valid @RequestBody ResendCodeRequestDto resendCodeRequestDto) {
         return ResponseEntity.ok(authService.resendVerificationCode(resendCodeRequestDto));
     }
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PostMapping("/forgot-password")
     public ResponseEntity<SuccessResponseDto<Void>> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequestDto forgotPasswordRequestDto) {
         return ResponseEntity.ok(authService.forgotPassword(forgotPasswordRequestDto));
     }
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PostMapping("/reset-password")
     public ResponseEntity<SuccessResponseDto<Void>> resetPassword(
             @Valid @RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
         return ResponseEntity.ok(authService.resetPassword(resetPasswordRequestDto));
     }
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PostMapping("/refresh-token")
     public ResponseEntity<SuccessResponseDto<UserAuthResponseDto>> refreshToken(
             @Valid @RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
