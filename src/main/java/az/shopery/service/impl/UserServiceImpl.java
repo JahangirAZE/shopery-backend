@@ -2,7 +2,6 @@ package az.shopery.service.impl;
 
 import static az.shopery.utils.common.NameMapperHelper.first;
 import static az.shopery.utils.common.NameMapperHelper.last;
-
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.model.dto.request.ShopCreateRequestDto;
 import az.shopery.model.dto.request.UserProfileUpdateRequestDto;
