@@ -1,9 +1,12 @@
 package az.shopery.repository;
 
 import az.shopery.model.entity.UserEntity;
+import az.shopery.utils.enums.UserRole;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +18,5 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM UserEntity u WHERE u.email = :email")
     Optional<UserEntity> findAndLockByEmail(String email);
+    Page<UserEntity> findAllByUserRole(UserRole userRole, Pageable pageable);
 }
