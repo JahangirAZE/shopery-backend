@@ -1,13 +1,9 @@
 package az.shopery.controller;
 
-import az.shopery.model.dto.request.ShopCreateRequestDto;
-import az.shopery.model.dto.request.UserPasswordUpdateRequestDto;
-import az.shopery.model.dto.request.UserProfileUpdateRequestDto;
-import az.shopery.model.dto.response.BecomeMerchantResponseDto;
-import az.shopery.model.dto.response.SuccessResponseDto;
-import az.shopery.model.dto.response.UserPasswordUpdateResponseDto;
-import az.shopery.model.dto.response.UserProfileResponseDto;
+import az.shopery.model.dto.request.*;
+import az.shopery.model.dto.response.*;
 import az.shopery.service.UserService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -53,9 +49,24 @@ public class UserController {
         return ResponseEntity.ok(userService.createMyShop(principal.getName(), shopCreateRequestDto));
     }
 
+    @RateLimiter(name = "auth-rate-limiter")
     @PutMapping("/password")
     public ResponseEntity<SuccessResponseDto<UserPasswordUpdateResponseDto>> updatePassword(Principal principal,
                                                                                             @Valid @RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto){
         return ResponseEntity.ok(userService.updateMyPassword(principal.getName(), userPasswordUpdateRequestDto));
+    }
+
+    @RateLimiter(name = "auth-rate-limiter")
+    @PutMapping("/email")
+    public ResponseEntity<SuccessResponseDto<Void>> changeMyEmail(Principal principal,
+                                                                  @Valid @RequestBody UserEmailUpdateRequestDto userEmailUpdateRequestDto) {
+        return ResponseEntity.ok(userService.changeMyEmail(principal.getName(), userEmailUpdateRequestDto));
+    }
+
+    @RateLimiter(name = "auth-rate-limiter")
+    @PostMapping("/email/verify")
+    public ResponseEntity<SuccessResponseDto<UserEmailUpdateResponseDto>> verifyMyEmail(Principal principal,
+                                                                                        @Valid @RequestBody UserEmailVerificationRequestDto userEmailVerificationRequestDto) {
+        return ResponseEntity.ok(userService.verifyMyEmail(principal.getName(), userEmailVerificationRequestDto));
     }
 }

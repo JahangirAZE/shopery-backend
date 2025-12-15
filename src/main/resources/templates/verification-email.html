@@ -70,7 +70,12 @@
     </div>
     <div class="content">
         <p>Hi <strong th:text="${userName}">User</strong>,</p>
-        <p>Thank you for registering. Please use the verification code below to complete your registration. This code will expire in 5 minutes.</p>
+        <p th:if="${!isRegistration}">
+            This email address was entered as a new contact email for an existing shopery account. Please confirm it using the verification code below to complete the update.
+        </p>
+        <p th:if="${isRegistration}">
+            Thank you for registering. Please use the verification code below to complete your registration. This code will expire in 5 minutes.
+        </p>
 
         <div class="code-container">
             <span class="code" th:text="${verificationCode}">123456</span>

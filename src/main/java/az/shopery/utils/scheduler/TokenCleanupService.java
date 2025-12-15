@@ -1,5 +1,6 @@
 package az.shopery.utils.scheduler;
 
+import az.shopery.repository.EmailUpdateTokenRepository;
 import az.shopery.repository.PasswordResetTokenRepository;
 import az.shopery.repository.VerificationTokenRepository;
 import az.shopery.utils.enums.VerificationProgress;
@@ -17,6 +18,7 @@ public class TokenCleanupService {
 
     private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailUpdateTokenRepository emailUpdateTokenRepository;
 
     @Scheduled(cron = "0 0 * * * *")
     @Transactional
@@ -34,5 +36,14 @@ public class TokenCleanupService {
         log.info("Running job to clean up expired password reset tokens older than {}", now);
         passwordResetTokenRepository.deleteByExpiryDateBefore(now);
         log.info("Expired and abandoned password reset token cleanup job finished.");
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    @Transactional
+    public void purgeExpiredEmailUpdateTokens() {
+        LocalDateTime now = LocalDateTime.now();
+        log.info("Running job to clean up expired email update tokens older than {}", now);
+        emailUpdateTokenRepository.deleteByExpiryDateBefore(now);
+        log.info("Expired and abandoned email update token cleanup job finished at {}", now);
     }
 }

@@ -1,32 +1,36 @@
 package az.shopery.service.impl;
 
-import static az.shopery.utils.common.NameMapperHelper.first;
-import static az.shopery.utils.common.NameMapperHelper.last;
+import az.shopery.handler.exception.EmailAlreadyExistsException;
 import az.shopery.handler.exception.InvalidCredentialsException;
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.model.dto.request.ShopCreateRequestDto;
+import az.shopery.model.dto.request.UserEmailUpdateRequestDto;
+import az.shopery.model.dto.request.UserEmailVerificationRequestDto;
 import az.shopery.model.dto.request.UserPasswordUpdateRequestDto;
 import az.shopery.model.dto.request.UserProfileUpdateRequestDto;
-import az.shopery.model.dto.response.BecomeMerchantResponseDto;
-import az.shopery.model.dto.response.SuccessResponseDto;
-import az.shopery.model.dto.response.UserPasswordUpdateResponseDto;
-import az.shopery.model.dto.response.UserProfileResponseDto;
+import az.shopery.model.dto.response.*;
+import az.shopery.model.entity.EmailUpdateTokenEntity;
 import az.shopery.model.entity.ShopEntity;
 import az.shopery.model.entity.UserEntity;
+import az.shopery.repository.EmailUpdateTokenRepository;
 import az.shopery.repository.ShopRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.EmailService;
 import az.shopery.service.UserService;
 import az.shopery.utils.enums.UserRole;
 import az.shopery.utils.security.JwtService;
-import java.math.BigDecimal;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.concurrent.ThreadLocalRandom;
+import static az.shopery.utils.common.NameMapperHelper.first;
+import static az.shopery.utils.common.NameMapperHelper.last;
 
 @Service
 @Slf4j
@@ -38,20 +42,13 @@ public class UserServiceImpl implements UserService {
     private final ShopRepository shopRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final EmailUpdateTokenRepository emailUpdateTokenRepository;
 
     @Override
     @Transactional(readOnly = true)
     public SuccessResponseDto<UserProfileResponseDto> getMyProfile(String userEmail) {
         UserEntity userEntity = getUserByEmail(userEmail);
-        var dto = UserProfileResponseDto.builder()
-                .firstName(first(userEntity.getName()))
-                .lastName(last(userEntity.getName()))
-                .email(userEntity.getEmail())
-                .phone(userEntity.getPhone())
-                .dateOfBirth(userEntity.getDateOfBirth())
-                .profilePhotoUrl(userEntity.getProfilePhotoUrl())
-                .createdAt(userEntity.getCreatedAt())
-                .build();
+        var dto = mapToDto(userEntity);
         return SuccessResponseDto.of(dto, "User profile retrieved successfully.");
     }
 
@@ -64,15 +61,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setDateOfBirth(userProfileUpdateRequestDto.getDateOfBirth());
 
         UserEntity updatedUserEntity = userRepository.save(userEntity);
-        var dto = UserProfileResponseDto.builder()
-                .firstName(first(updatedUserEntity.getName()))
-                .lastName(last(updatedUserEntity.getName()))
-                .email(updatedUserEntity.getEmail())
-                .phone(updatedUserEntity.getPhone())
-                .dateOfBirth(updatedUserEntity.getDateOfBirth())
-                .profilePhotoUrl(updatedUserEntity.getProfilePhotoUrl())
-                .createdAt(updatedUserEntity.getCreatedAt())
-                .build();
+        var dto = mapToDto(updatedUserEntity);
         log.info("User profile updated successfully for user {}", userEmail);
         return SuccessResponseDto.of(dto, "User profile updated successfully.");
     }
@@ -100,15 +89,7 @@ public class UserServiceImpl implements UserService {
         var dto = BecomeMerchantResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .userProfileResponseDto(UserProfileResponseDto.builder()
-                        .firstName(first(userEntity.getName()))
-                        .lastName(last(userEntity.getName()))
-                        .email(userEntity.getEmail())
-                        .phone(userEntity.getPhone())
-                        .dateOfBirth(userEntity.getDateOfBirth())
-                        .profilePhotoUrl(userEntity.getProfilePhotoUrl())
-                        .createdAt(userEntity.getCreatedAt())
-                        .build())
+                .userProfileResponseDto(mapToDto(userEntity))
                 .build();
         log.info("Become merchant successfully for user {}", userEmail);
         return SuccessResponseDto.of(dto, "Become merchant successfully.");
@@ -170,12 +151,67 @@ public class UserServiceImpl implements UserService {
         return SuccessResponseDto.of(userPasswordUpdateResponseDto, "Password has been updated successfully.");
     }
 
+    @Override
+    public SuccessResponseDto<Void> changeMyEmail(String userEmail, UserEmailUpdateRequestDto userEmailUpdateRequestDto) {
+        UserEntity userEntity = getUserByEmail(userEmail);
+        if(userRepository.existsByEmail(userEmailUpdateRequestDto.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        String code = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
+        EmailUpdateTokenEntity emailUpdateTokenEntity = emailUpdateTokenRepository.findByEmail(userEmailUpdateRequestDto.getEmail())
+                .orElse(new EmailUpdateTokenEntity());
+        emailUpdateTokenEntity.setEmail(userEmailUpdateRequestDto.getEmail());
+        emailUpdateTokenEntity.setToken(code);
+        emailUpdateTokenEntity.setExpiryDate(LocalDateTime.now().plusMinutes(5));
+        emailUpdateTokenRepository.save(emailUpdateTokenEntity);
+
+        emailService.sendVerificationCode(userEmailUpdateRequestDto.getEmail(), userEntity.getName(), code, false);
+
+        return SuccessResponseDto.of("Verification code has been sent to your email address");
+    }
+
+    @Override
+    public SuccessResponseDto<UserEmailUpdateResponseDto> verifyMyEmail(String name, UserEmailVerificationRequestDto userEmailVerificationRequestDto) {
+        UserEntity userEntity = getUserByEmail(name);
+        EmailUpdateTokenEntity emailUpdateTokenEntity = emailUpdateTokenRepository.findByEmail(userEmailVerificationRequestDto.getEmail()).orElseThrow(
+                () -> new ResourceNotFoundException("No pending verification found. It may have expired or been verified already")
+        );
+
+        if(emailUpdateTokenEntity.getExpiryDate().isBefore(LocalDateTime.now())) {
+            emailUpdateTokenRepository.delete(emailUpdateTokenEntity);
+            throw new InvalidCredentialsException("Verification token expired. Please request a new one.");
+        }
+        if(!emailUpdateTokenEntity.getToken().equals(userEmailVerificationRequestDto.getCode())) {
+            throw new InvalidCredentialsException("Invalid verification code");
+        }
+
+        emailUpdateTokenRepository.delete(emailUpdateTokenEntity);
+        userEntity.setEmail(userEmailVerificationRequestDto.getEmail());
+        userRepository.save(userEntity);
+
+        var userDetails = User.withUsername(userEntity.getEmail())
+                .password(userEntity.getPassword())
+                .authorities(userEntity.getUserRole().name())
+                .build();
+
+        String accessToken = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        var userEmailUpdateResponseDto = UserEmailUpdateResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .userProfileResponseDto(mapToDto(userEntity))
+                .build();
+
+        return SuccessResponseDto.of(userEmailUpdateResponseDto,"Email has been updated successfully");
+    }
+
     private UserEntity getUserByEmail(String userEmail) {
         return userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
     }
 
-    public UserProfileResponseDto mapToDto(UserEntity userEntity) {
+    private UserProfileResponseDto mapToDto(UserEntity userEntity) {
         return UserProfileResponseDto.builder()
                 .firstName(first(userEntity.getName()))
                 .lastName(last(userEntity.getName()))
