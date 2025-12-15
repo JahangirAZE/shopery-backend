@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
         verificationTokenEntity.setCodeLastSentAt(LocalDateTime.now());
         verificationTokenRepository.save(verificationTokenEntity);
 
-        emailService.sendVerificationCode(userRegisterRequestDto.getEmail(), userRegisterRequestDto.getName(), code);
+        emailService.sendVerificationCode(userRegisterRequestDto.getEmail(), userRegisterRequestDto.getName(), code, true);
 
         return SuccessResponseDto.of("Verification code sent to your email. Please verify to complete registration.");
     }
@@ -161,7 +161,7 @@ public class AuthServiceImpl implements AuthService {
         verificationTokenRepository.save(verificationTokenEntity);
 
         emailService.sendVerificationCode(
-                verificationTokenEntity.getUserEmail(), verificationTokenEntity.getUserName(), newCode);
+                verificationTokenEntity.getUserEmail(), verificationTokenEntity.getUserName(), newCode, true);
 
         return SuccessResponseDto.of("A new verification code has been sent to your email.");
     }
