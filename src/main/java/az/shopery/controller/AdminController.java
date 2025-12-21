@@ -1,16 +1,16 @@
 package az.shopery.controller;
 
+import az.shopery.model.dto.request.DeleteUserRequestDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.UserProfileResponseDto;
 import az.shopery.service.AdminService;
+import az.shopery.utils.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,5 +27,15 @@ public class AdminController {
     @GetMapping("/merchants")
     public ResponseEntity<SuccessResponseDto<Page<UserProfileResponseDto>>> getMerchants(Pageable pageable) {
         return ResponseEntity.ok(adminService.getMerchants(pageable));
+    }
+
+    @DeleteMapping("/customers")
+    public ResponseEntity<SuccessResponseDto<Void>> deleteCustomer(@RequestBody DeleteUserRequestDto deleteUserRequestDto) {
+        return ResponseEntity.ok(adminService.deleteUser(deleteUserRequestDto, UserRole.CUSTOMER));
+    }
+
+    @DeleteMapping("/merchants")
+    public ResponseEntity<SuccessResponseDto<Void>> deleteMerchant(@RequestBody DeleteUserRequestDto deleteUserRequestDto) {
+        return ResponseEntity.ok(adminService.deleteUser(deleteUserRequestDto, UserRole.MERCHANT));
     }
 }
