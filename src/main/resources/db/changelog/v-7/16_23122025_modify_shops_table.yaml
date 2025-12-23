@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 06_23122025_modify_shops_table
+      author: Nijat Alizada
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: shops
+            constraintName: fk_shops_user
+
+        - addForeignKeyConstraint:
+            baseTableName: shops
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_shops_user
+            onDelete: CASCADE

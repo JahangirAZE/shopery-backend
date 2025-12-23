@@ -100,7 +100,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendPasswordChangedNotification(String to, String name) {
         try{
             Context context = new Context();
-            context.setVariable("username", name);
+            context.setVariable("userName", name);
 
             String htmlContent = templateEngine.process("change-password-email", context);
 
@@ -109,6 +109,29 @@ public class EmailServiceImpl implements EmailService {
 
             helper.setTo(to);
             helper.setSubject("Shopery Password Update");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+
+        } catch (Exception e){
+            log.error("Error sending email to {}", to, e);
+        }
+    }
+
+    @Override
+    public void sendMerchantClosedNotification(String to, String customerName, String merchantName) {
+        try{
+            Context context = new Context();
+            context.setVariable("userName", customerName);
+            context.setVariable("merchantName", merchantName);
+
+            String htmlContent = templateEngine.process("merchant-closed-notification-email", context);
+
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject("Shopery Merchant Update");
             helper.setText(htmlContent, true);
 
             javaMailSender.send(message);

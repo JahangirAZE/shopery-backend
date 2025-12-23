@@ -12,4 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     @EntityGraph(attributePaths = {"items", "shop"})
     List<OrderEntity> findAllByUserOrderByCreatedAtDesc(UserEntity userEntity);
+    List<OrderEntity> findAllByShopId(UUID id);
 }
