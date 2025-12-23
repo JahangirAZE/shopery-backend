@@ -12,6 +12,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DeleteUserRequestDto {
+public class CloseMerchantRequestDto {
     String email;
 }

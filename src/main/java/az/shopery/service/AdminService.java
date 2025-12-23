@@ -1,9 +1,8 @@
 package az.shopery.service;
 
-import az.shopery.model.dto.request.DeleteUserRequestDto;
+import az.shopery.model.dto.request.CloseMerchantRequestDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.UserProfileResponseDto;
-import az.shopery.utils.enums.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,5 +11,5 @@ import org.springframework.stereotype.Service;
 public interface AdminService {
     SuccessResponseDto<Page<UserProfileResponseDto>> getCustomers(Pageable pageable);
     SuccessResponseDto<Page<UserProfileResponseDto>> getMerchants(Pageable pageable);
-    SuccessResponseDto<Void> deleteUser(DeleteUserRequestDto deleteUserRequestDto, UserRole userRole);
+    SuccessResponseDto<Void> closeMerchant(CloseMerchantRequestDto closeMerchantRequestDto);
 }

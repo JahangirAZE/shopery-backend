@@ -2,6 +2,7 @@ package az.shopery.repository;
 
 import az.shopery.model.entity.UserEntity;
 import az.shopery.utils.enums.UserRole;
+import az.shopery.utils.enums.UserStatus;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM UserEntity u WHERE u.email = :email")
     Optional<UserEntity> findAndLockByEmail(String email);
-    Page<UserEntity> findAllByUserRole(UserRole userRole, Pageable pageable);
     Boolean existsByEmail(String email);
-    Optional<UserEntity> findByEmailAndUserRole(String email, UserRole userRole);
+    Optional<UserEntity> findByEmailAndUserRoleAndStatus(String email, UserRole userRole, UserStatus status);
+    Page<UserEntity> findAllByUserRoleAndStatus(UserRole userRole, UserStatus status, Pageable pageable);
 }

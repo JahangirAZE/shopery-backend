@@ -1,6 +1,7 @@
 package az.shopery.model.entity;
 
 import az.shopery.utils.enums.UserRole;
+import az.shopery.utils.enums.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -78,12 +79,22 @@ public class UserEntity {
     Instant lastRoleChangeAt;
     @Column(name = "password_changed_at")
     Instant passwordChangedAt;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "status")
+    UserStatus status =  UserStatus.ACTIVE;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     WishlistEntity wishlist;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     CartEntity cart;
+    @OneToOne(mappedBy = "user", cascade =  CascadeType.ALL, orphanRemoval = true)
+    ShopEntity shop;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     List<BlogEntity> blogs;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     List<BlogLikeEntity> blogLikes;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<UserAddressEntity> userAddresses;
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    List<OrderEntity> orders;
 }
