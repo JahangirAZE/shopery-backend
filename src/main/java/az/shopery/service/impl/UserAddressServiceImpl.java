@@ -105,7 +105,9 @@ public class UserAddressServiceImpl implements UserAddressService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found with id: " + id));
 
-        all.stream().filter(UserAddressEntity::isDefault).forEach(a -> a.setDefault(false));
+        all.stream()
+                .filter(UserAddressEntity::isDefault)
+                .forEach(a -> a.setDefault(false));
         newDefault.setDefault(true);
         userAddressRepository.saveAll(all);
 

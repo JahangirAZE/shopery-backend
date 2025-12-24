@@ -7,6 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface EmailUpdateTokenRepository extends JpaRepository<EmailUpdateTokenEntity, UUID> {
-   Optional<EmailUpdateTokenEntity> findByEmail(String token);
+    Optional<EmailUpdateTokenEntity> findByEmail(String token);
     void deleteByExpiryDateBefore(LocalDateTime now);
 }

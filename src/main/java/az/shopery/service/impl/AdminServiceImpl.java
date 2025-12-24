@@ -46,9 +46,8 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public SuccessResponseDto<Void> closeMerchant(CloseMerchantRequestDto closeMerchantRequestDto) {
         String email = closeMerchantRequestDto.getEmail();
-        UserEntity user = userRepository.findByEmailAndUserRoleAndStatus(email, UserRole.MERCHANT, UserStatus.ACTIVE).orElseThrow(
-                () -> new ResourceNotFoundException("Merchant not found")
-        );
+        UserEntity user = userRepository.findByEmailAndUserRoleAndStatus(email, UserRole.MERCHANT, UserStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Merchant not found"));
         user.setStatus(UserStatus.CLOSED);
 
         ShopEntity shop = user.getShop();

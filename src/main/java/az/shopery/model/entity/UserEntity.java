@@ -81,7 +81,7 @@ public class UserEntity {
     Instant passwordChangedAt;
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     UserStatus status =  UserStatus.ACTIVE;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     WishlistEntity wishlist;

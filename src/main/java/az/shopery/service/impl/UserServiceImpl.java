@@ -174,9 +174,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public SuccessResponseDto<UserEmailUpdateResponseDto> verifyMyEmail(String name, UserEmailVerificationRequestDto userEmailVerificationRequestDto) {
         UserEntity userEntity = getUserByEmail(name);
-        EmailUpdateTokenEntity emailUpdateTokenEntity = emailUpdateTokenRepository.findByEmail(userEmailVerificationRequestDto.getEmail()).orElseThrow(
-                () -> new ResourceNotFoundException("No pending verification found. It may have expired or been verified already")
-        );
+        EmailUpdateTokenEntity emailUpdateTokenEntity = emailUpdateTokenRepository.findByEmail(userEmailVerificationRequestDto.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("No pending verification found. It may have expired or been verified already"));
 
         if(emailUpdateTokenEntity.getExpiryDate().isBefore(LocalDateTime.now())) {
             emailUpdateTokenRepository.delete(emailUpdateTokenEntity);
