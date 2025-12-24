@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShopRepository extends JpaRepository<ShopEntity, UUID> {
-    boolean existsByUser(UserEntity userEntity);
-    boolean existsByShopName(String shopName);
+    Boolean existsByUser(UserEntity userEntity);
+    Boolean existsByShopName(String shopName);
     Optional<ShopEntity> findByUserEmail(String userEmail);
     Optional<ShopEntity> findByUser(UserEntity userEntity);
     @Query("SELECT s FROM ShopEntity s LEFT JOIN FETCH s.products WHERE s.id = :id")

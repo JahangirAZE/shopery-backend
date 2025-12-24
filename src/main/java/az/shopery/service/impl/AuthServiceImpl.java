@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
         verificationTokenEntity.setCodeLastSentAt(LocalDateTime.now());
         verificationTokenRepository.save(verificationTokenEntity);
 
-        emailService.sendVerificationCode(userRegisterRequestDto.getEmail(), userRegisterRequestDto.getName(), code, true);
+        emailService.sendVerificationCode(userRegisterRequestDto.getEmail(), userRegisterRequestDto.getName(), code, Boolean.TRUE);
 
         return SuccessResponseDto.of("Verification code sent to your email. Please verify to complete registration.");
     }
