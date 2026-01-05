@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -198,7 +200,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private UserEntity findUser(String userEmail) {
-        return userRepository.findByEmail(userEmail)
+        return userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 

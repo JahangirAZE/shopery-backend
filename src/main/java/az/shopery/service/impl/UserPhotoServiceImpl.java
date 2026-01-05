@@ -9,6 +9,8 @@ import az.shopery.service.UserPhotoService;
 import az.shopery.utils.aws.FileStorageService;
 import java.time.Duration;
 import java.util.Objects;
+
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,7 +82,7 @@ public class UserPhotoServiceImpl implements UserPhotoService {
     }
 
     private UserEntity getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
     }
 }

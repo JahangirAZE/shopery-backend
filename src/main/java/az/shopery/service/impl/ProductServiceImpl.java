@@ -20,6 +20,7 @@ import az.shopery.utils.aws.S3FileUtil;
 import az.shopery.utils.common.DiscountCalculator;
 import az.shopery.utils.enums.ProductCategory;
 import az.shopery.utils.enums.ProductCondition;
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -185,7 +186,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ShopEntity getShopForMerchant(String userEmail) {
-        UserEntity userEntity = userRepository.findByEmail(userEmail)
+        UserEntity userEntity = userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return shopRepository.findByUser(userEntity)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found for this merchant. Please create a shop first."));
