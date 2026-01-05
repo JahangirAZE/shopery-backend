@@ -9,6 +9,7 @@ import az.shopery.repository.BlogLikeRepository;
 import az.shopery.repository.BlogRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.BlogLikeService;
+import az.shopery.utils.enums.UserStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,7 +29,7 @@ public class BlogLikeServiceImpl implements BlogLikeService {
     @Override
     public SuccessResponseDto<Void> toggleBlogLike(String userEmail, String blogId) {
         UUID id = parse(blogId);
-        UserEntity user = userRepository.findByEmail(userEmail)
+        UserEntity user = userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email " + userEmail + " not found."));
         BlogEntity blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found."));

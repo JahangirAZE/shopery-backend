@@ -14,6 +14,8 @@ import az.shopery.repository.UserRepository;
 import az.shopery.service.UserAddressService;
 import java.util.List;
 import java.util.UUID;
+
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -137,7 +139,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     }
 
     private UserEntity getUserByEmail(String userEmail) {
-        return userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
+        return userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
     }
 
     private UserAddressEntity getAddressForUser(String userEmail, String addressId) {

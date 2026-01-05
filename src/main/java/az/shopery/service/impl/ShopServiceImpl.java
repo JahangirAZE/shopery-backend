@@ -15,6 +15,7 @@ import az.shopery.service.ShopService;
 import java.util.Collections;
 import java.util.UUID;
 import az.shopery.utils.common.DiscountCalculator;
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional(readOnly = true)
     public SuccessResponseDto<UserShopResponseDto> getMyShop(String userEmail) {
-        userRepository.findByEmail(userEmail)
+        userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
 
         ShopEntity shopEntity = shopRepository.findByUserEmail(userEmail)

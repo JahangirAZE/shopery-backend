@@ -18,6 +18,7 @@ import az.shopery.repository.UserRepository;
 import az.shopery.service.EmailService;
 import az.shopery.service.UserService;
 import az.shopery.utils.enums.UserRole;
+import az.shopery.utils.enums.UserStatus;
 import az.shopery.utils.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -206,7 +207,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserEntity getUserByEmail(String userEmail) {
-        return userRepository.findByEmail(userEmail)
+        return userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
     }
 

@@ -13,6 +13,7 @@ import az.shopery.repository.BlogRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.BlogService;
 import az.shopery.utils.aws.S3FileUtil;
+import az.shopery.utils.enums.UserStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +68,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public SuccessResponseDto<BlogResponseDto> addMyBlog(String userEmail, BlogRequestDto blogRequestDto) {
-        UserEntity user = userRepository.findByEmail(userEmail)
+        UserEntity user = userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("User with email " + userEmail + " not found."));
 
         BlogEntity blogEntity = BlogEntity.builder()
@@ -127,7 +128,7 @@ public class BlogServiceImpl implements BlogService {
         UUID id = parse(blogId);
         BlogEntity blogEntity = blogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found."));
-        UserEntity user = userRepository.findByEmail(userEmail)
+        UserEntity user = userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email " + userEmail + " not found."));
 
         if(!blogEntity.getUser().getId().equals(user.getId())) {

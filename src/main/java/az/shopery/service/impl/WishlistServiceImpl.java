@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -102,7 +104,7 @@ public class WishlistServiceImpl implements WishlistService {
     }
 
     private UserEntity findUser(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 

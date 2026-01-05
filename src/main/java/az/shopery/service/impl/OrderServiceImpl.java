@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -156,7 +158,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public SuccessResponseDto<List<OrderResponseDto>> getMyOrders(String userEmail) {
-        UserEntity user = userRepository.findByEmail(userEmail)
+        UserEntity user = userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
         List<OrderEntity> orders = orderRepository.findAllByUserOrderByCreatedAtDesc(user);
         List<OrderResponseDto> dtos = orders.stream().map(this::map).toList();

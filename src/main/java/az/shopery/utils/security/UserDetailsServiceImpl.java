@@ -2,6 +2,7 @@ package az.shopery.utils.security;
 
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.repository.UserRepository;
+import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        var userEntity = userRepository.findByEmail(email)
+        var userEntity = userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
         return User.withUsername(userEntity.getEmail())

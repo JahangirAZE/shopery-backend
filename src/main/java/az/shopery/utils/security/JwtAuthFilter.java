@@ -2,6 +2,7 @@ package az.shopery.utils.security;
 
 import az.shopery.model.entity.UserEntity;
 import az.shopery.repository.UserRepository;
+import az.shopery.utils.enums.UserStatus;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -56,7 +57,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (Objects.nonNull(userEmail) && Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             if (jwtService.isTokenValid(jwt, userDetails)) {
-                UserEntity userEntity = userRepository.findByEmail(userEmail).orElse(null);
+                UserEntity userEntity = userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE).orElse(null);
                 if (Objects.nonNull(userEntity) && Objects.nonNull(userEntity.getLastRoleChangeAt())) {
                     Date tokenIssuedAt = jwtService.extractIssuedAt(jwt);
                     var lastRoleChangeAtTruncated = userEntity.getLastRoleChangeAt().truncatedTo(ChronoUnit.SECONDS);
