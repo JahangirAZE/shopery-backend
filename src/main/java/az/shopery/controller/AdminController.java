@@ -2,6 +2,7 @@ package az.shopery.controller;
 
 import az.shopery.model.dto.request.CloseMerchantRequestDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
+import az.shopery.model.dto.response.SupportTicketResponseDto;
 import az.shopery.model.dto.response.UserProfileResponseDto;
 import az.shopery.service.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +11,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/")
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
+
     private final AdminService adminService;
 
     @GetMapping("/customers")
@@ -31,5 +34,10 @@ public class AdminController {
     @PatchMapping("/users/close")
     public ResponseEntity<SuccessResponseDto<Void>> closeUser(@RequestBody CloseMerchantRequestDto closeMerchantRequestDto) {
         return ResponseEntity.ok(adminService.closeMerchant(closeMerchantRequestDto));
+    }
+
+    @GetMapping("/support-tickets")
+    public ResponseEntity<SuccessResponseDto<Page<SupportTicketResponseDto>>> getSupportTickets(Pageable pageable, Principal principal) {
+        return ResponseEntity.ok(adminService.getSupportTickets(pageable, principal.getName()));
     }
 }
