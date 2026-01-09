@@ -1,5 +1,6 @@
 package az.shopery.service.impl;
 
+import az.shopery.handler.exception.IllegalRequestException;
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.model.dto.request.CreateSupportTicketRequestDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
@@ -41,11 +42,10 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     }
 
     private UserEntity getRandomAdmin() {
-        List<UserEntity> admins = userRepository.findByUserRole(UserRole.ADMIN);
+        List<UserEntity> admins = userRepository.findAllByUserRoleAndStatus(UserRole.ADMIN, UserStatus.ACTIVE);
         if (admins.isEmpty()) {
-            throw new IllegalStateException("No admins available!");
+            throw new IllegalRequestException("No admins available!");
         }
-
         return admins.get(ThreadLocalRandom.current().nextInt(admins.size()));
     }
 }
