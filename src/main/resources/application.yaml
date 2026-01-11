@@ -6,8 +6,6 @@ spring:
       max-request-size: 10MB
   application:
     name: shopery
-  profiles:
-    active: local
   jpa:
     hibernate:
       ddl-auto: none
@@ -44,7 +42,7 @@ application:
     base-url: ${FRONTEND_BASE_URL}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 aws:
   region: ${AWS_REGION}
