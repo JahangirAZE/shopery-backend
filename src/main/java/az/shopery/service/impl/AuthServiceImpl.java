@@ -122,7 +122,8 @@ public class AuthServiceImpl implements AuthService {
         var accessToken = jwtService.generateToken(UserDetails);
         var refreshToken = jwtService.generateRefreshToken(UserDetails);
 
-        verificationTokenRepository.delete(verificationTokenEntity);
+        verificationTokenEntity.setProgress(VerificationProgress.VERIFIED);
+        verificationTokenRepository.save(verificationTokenEntity);
 
         var authResponse = UserAuthResponseDto.builder()
                 .accessToken(accessToken)
