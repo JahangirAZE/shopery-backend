@@ -10,4 +10,6 @@ public interface EmailService {
     void sendPasswordChangedNotification(String to, String name);
     void sendMerchantClosedNotification(String to, String customerName, String merchantName);
     void sendSupportTicketClosedNotification(String to, String userName, String ticketSubject, String ticketId);
+    void sendShopApprovedEmail(String to, String userName, String shopName);
+    void sendShopRejectedEmail(String to, String userName, String shopName, String rejectionReason);
 }

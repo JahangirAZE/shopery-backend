@@ -52,9 +52,6 @@ public class ShopCreationRequestEntity {
     @JoinColumn(name = "assigned_admin_id")
     UserEntity assignedAdmin;
     @Builder.Default
-    @Column(name = "is_user_notified", nullable = false)
-    Boolean isUserNotified = Boolean.FALSE;
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status", nullable = false)
     RequestStatus status = RequestStatus.PENDING;

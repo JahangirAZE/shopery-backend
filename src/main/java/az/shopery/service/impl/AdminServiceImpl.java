@@ -5,26 +5,36 @@ import static az.shopery.utils.common.NameMapperHelper.last;
 import static az.shopery.utils.common.UuidUtils.parse;
 
 import az.shopery.handler.exception.ResourceNotFoundException;
+import az.shopery.model.dto.event.ShopCreationRequestApprovedEvent;
+import az.shopery.model.dto.event.ShopCreationRequestRejectedEvent;
 import az.shopery.model.dto.request.CloseMerchantRequestDto;
+import az.shopery.model.dto.request.ShopCreationRequestRejectDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.SupportTicketResponseDto;
 import az.shopery.model.dto.response.UserProfileResponseDto;
 import az.shopery.model.dto.shared.SupportTicketCreatorDto;
 import az.shopery.model.entity.OrderEntity;
+import az.shopery.model.entity.ShopCreationRequestEntity;
 import az.shopery.model.entity.ShopEntity;
 import az.shopery.model.entity.SupportTicketEntity;
 import az.shopery.model.entity.UserEntity;
 import az.shopery.repository.OrderRepository;
+import az.shopery.repository.ShopRepository;
+import az.shopery.repository.admin.ShopCreationRequestRepository;
 import az.shopery.repository.admin.SupportTicketRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.AdminService;
 import az.shopery.utils.enums.OrderStatus;
+import az.shopery.utils.enums.RequestStatus;
 import az.shopery.utils.enums.TicketStatus;
 import az.shopery.utils.enums.UserRole;
 import az.shopery.utils.enums.UserStatus;
 import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,9 +42,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
+
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final SupportTicketRepository supportTicketRepository;
+    private final ShopCreationRequestRepository shopCreationRequestRepository;
+    private final ShopRepository shopRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public SuccessResponseDto<Page<UserProfileResponseDto>> getCustomers(Pageable pageable) {
@@ -80,9 +94,47 @@ public class AdminServiceImpl implements AdminService {
         return SuccessResponseDto.of("Support ticket has been closed successfully!");
     }
 
+    @Override
+    @Transactional
+    public SuccessResponseDto<Void> approve(String id, String userEmail) {
+        ShopCreationRequestEntity shopCreationRequestEntity = getShopCreationRequestEntity(id, userEmail);
+
+        ShopEntity shop = ShopEntity.builder()
+                .user(shopCreationRequestEntity.getCreatedBy())
+                .shopName(shopCreationRequestEntity.getShopName())
+                .description(shopCreationRequestEntity.getDescription())
+                .totalIncome(BigDecimal.ZERO)
+                .rating(0.0)
+                .build();
+
+        shopRepository.save(shop);
+        shopCreationRequestEntity.setStatus(RequestStatus.APPROVED);
+        applicationEventPublisher.publishEvent(new ShopCreationRequestApprovedEvent(shopCreationRequestEntity));
+
+        return SuccessResponseDto.of("Shop creation request has been approved successfully!");
+    }
+
+    @Override
+    @Transactional
+    public SuccessResponseDto<Void> reject(String id, String userEmail, ShopCreationRequestRejectDto shopCreationRequestRejectDto) {
+        ShopCreationRequestEntity shopCreationRequestEntity = getShopCreationRequestEntity(id, userEmail);
+
+        shopCreationRequestEntity.setStatus(RequestStatus.REJECTED);
+        shopCreationRequestEntity.setRejectionReason(shopCreationRequestRejectDto.getReason());
+        applicationEventPublisher.publishEvent(new ShopCreationRequestRejectedEvent(shopCreationRequestEntity));
+
+        return SuccessResponseDto.of("Shop creation request has been rejected successfully!");
+    }
+
     private UserEntity getAdmin(String userEmail) {
         return userRepository.findByEmailAndUserRoleAndStatus(userEmail, UserRole.ADMIN, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin not found!"));
+    }
+
+    private ShopCreationRequestEntity getShopCreationRequestEntity(String id, String userEmail) {
+        UserEntity admin = getAdmin(userEmail);
+        return shopCreationRequestRepository.findByIdAndAssignedAdminAndStatus(parse(id), admin, RequestStatus.PENDING)
+                .orElseThrow(() -> new  ResourceNotFoundException("Shop creation request not found!"));
     }
 
     private UserProfileResponseDto mapToDto(UserEntity userEntity) {

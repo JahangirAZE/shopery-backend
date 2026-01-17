@@ -107,6 +107,33 @@ public class EmailServiceImpl implements EmailService {
         );
     }
 
+    @Override
+    public void sendShopApprovedEmail(String to, String userName, String shopName) {
+        sendEmail(
+                to,
+                "Your Shop Creation Request Has Been Approved",
+                "shop-creation-approved-email",
+                Map.of(
+                        "userName", userName,
+                        "shopName", shopName
+                )
+        );
+    }
+
+    @Override
+    public void sendShopRejectedEmail(String to, String userName, String shopName, String rejectionReason) {
+        sendEmail(
+                to,
+                "Your Shop Creation Request Has Been Rejected",
+                "shop-creation-rejected-email",
+                Map.of(
+                        "userName", userName,
+                        "shopName", shopName,
+                        "rejectionReason", rejectionReason
+                )
+        );
+    }
+
     private void sendEmail(String to, String subject, String templateName,  Map<String, Object> variables) {
         try {
             Context context = new Context();
