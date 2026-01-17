@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 24_17012026_drop_is_user_notified_from_shop_creation_requests
+      author: Jahangir Alisoy
+      changes:
+        - dropColumn:
+            tableName: shop_creation_requests
+            columnName: is_user_notified

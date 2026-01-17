@@ -1,6 +1,7 @@
 package az.shopery.controller;
 
 import az.shopery.model.dto.request.CloseMerchantRequestDto;
+import az.shopery.model.dto.request.ShopCreationRequestRejectDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.SupportTicketResponseDto;
 import az.shopery.model.dto.response.UserProfileResponseDto;
@@ -46,5 +47,15 @@ public class AdminController {
     @PatchMapping("/support-tickets/{id}/close")
     public ResponseEntity<SuccessResponseDto<Void>> closeSupportTickets(@PathVariable String id, Principal principal) {
         return ResponseEntity.ok(adminService.closeSupportTicket(id, principal.getName()));
+    }
+
+    @PostMapping("/shop-creation-requests/{id}/approve")
+    public ResponseEntity<SuccessResponseDto<Void>> approve(@PathVariable String id, Principal principal) {
+        return ResponseEntity.ok(adminService.approve(id, principal.getName()));
+    }
+
+    @PostMapping("/shop-creation-requests/{id}/reject")
+    public ResponseEntity<SuccessResponseDto<Void>> reject(@PathVariable String id, @Valid @RequestBody ShopCreationRequestRejectDto shopCreationRequestRejectDto, Principal principal) {
+        return ResponseEntity.ok(adminService.reject(id, principal.getName(), shopCreationRequestRejectDto));
     }
 }
