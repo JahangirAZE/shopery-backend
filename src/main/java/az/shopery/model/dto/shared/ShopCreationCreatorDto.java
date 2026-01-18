@@ -9,11 +9,11 @@ import lombok.experimental.FieldDefaults;
 import java.util.UUID;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SupportTicketCreatorDto {
+public class ShopCreationCreatorDto {
     UUID id;
     String name;
     String email;
