@@ -25,7 +25,7 @@ import az.shopery.repository.TaskRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.EmailService;
 import az.shopery.service.UserService;
-import az.shopery.utils.admin.AdminAssignmentService;
+import az.shopery.utils.common.AdminAssignmentHelper;
 import az.shopery.utils.enums.UserRole;
 import az.shopery.utils.enums.UserStatus;
 import az.shopery.utils.security.JwtService;
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-    private final AdminAssignmentService adminAssignmentService;
+    private final AdminAssignmentHelper adminAssignmentHelper;
 
     @Override
     @Transactional(readOnly = true)
@@ -108,6 +108,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public SuccessResponseDto<Void> createMyShop(String userEmail, ShopCreateRequestDto shopCreateRequestDto) {
         UserEntity userEntity = getUserByEmail(userEmail);
+        UserEntity assignedAdmin = adminAssignmentHelper.assignRandomAdmin();
 
         if (shopRepository.existsByUser(userEntity)) {
             throw new IllegalStateException("User already has a shop.");
@@ -118,7 +119,7 @@ public class UserServiceImpl implements UserService {
 
         ShopCreationRequestEntity shopCreationRequestEntity = ShopCreationRequestEntity.builder()
                 .createdBy(userEntity)
-                .assignedAdmin(adminAssignmentService.assignRandomAdmin())
+                .assignedAdmin(assignedAdmin)
                 .shopName(shopCreateRequestDto.getShopName())
                 .description(shopCreateRequestDto.getDescription())
                 .build();

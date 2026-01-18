@@ -11,7 +11,7 @@ import az.shopery.model.entity.UserEntity;
 import az.shopery.repository.TaskRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.SupportTicketService;
-import az.shopery.utils.admin.AdminAssignmentService;
+import az.shopery.utils.common.AdminAssignmentHelper;
 import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +28,13 @@ public class SupportTicketServiceImpl implements SupportTicketService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
-    private final AdminAssignmentService adminAssignmentService;
+    private final AdminAssignmentHelper adminAssignmentHelper;
 
     @Override
     @Transactional
     public SuccessResponseDto<Void> createMySupportTicket(SupportTicketRequestDto dto, String userEmail) {
         UserEntity user = getUser(userEmail);
-        UserEntity assignedAdmin = adminAssignmentService.assignRandomAdmin();
+        UserEntity assignedAdmin = adminAssignmentHelper.assignRandomAdmin();
 
         SupportTicketEntity ticket = SupportTicketEntity.builder()
                 .subject(dto.getSubject())

@@ -1,4 +1,4 @@
-package az.shopery.utils.admin;
+package az.shopery.utils.common;
 
 import az.shopery.handler.exception.IllegalRequestException;
 import az.shopery.model.entity.UserEntity;
@@ -8,17 +8,14 @@ import az.shopery.utils.enums.UserStatus;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-@Slf4j
+@Component
 @RequiredArgsConstructor
-public class AdminAssignmentServiceImpl implements AdminAssignmentService {
+public class AdminAssignmentHelper {
 
     private final UserRepository userRepository;
 
-    @Override
     public UserEntity assignRandomAdmin() {
         List<UserEntity> admins = userRepository.findAllByUserRoleAndStatus(UserRole.ADMIN, UserStatus.ACTIVE);
 
