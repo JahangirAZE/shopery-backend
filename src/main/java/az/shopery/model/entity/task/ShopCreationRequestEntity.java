@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ShopCreationRequestEntity extends TaskEntity{
+public class ShopCreationRequestEntity extends TaskEntity {
     @Column(name = "shop_name", nullable = false)
     String shopName;
     @Column(name = "description")

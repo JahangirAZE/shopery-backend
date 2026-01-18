@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SupportTicketEntity extends TaskEntity{
+public class SupportTicketEntity extends TaskEntity {
     @Column(name = "subject", nullable = false)
     String subject;
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
