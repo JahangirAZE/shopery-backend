@@ -243,14 +243,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public SuccessResponseDto<BlogResponseDto> getSavedBlog(String userEmail, String blogId) {
-        SavedBlogEntity savedBlogEntity = getUserSavedBlog(userEmail, blogId);
-        BlogEntity blogEntity = savedBlogEntity.getBlog();
-        return SuccessResponseDto.of(mapBlogToDto(blogEntity), "Blog has been retrieved successfully");
-    }
-
-    @Override
-    @Transactional
     public SuccessResponseDto<Page<BlogResponseDto>> getSavedBlogs(String userEmail, Pageable pageable) {
         UserEntity userEntity = getUserByEmail(userEmail);
         Page<SavedBlogEntity> savedBlogEntities = savedBlogRepository.findAllByUserId(userEntity.getId(), pageable);

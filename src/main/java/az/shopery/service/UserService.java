@@ -23,7 +23,6 @@ public interface UserService {
     SuccessResponseDto<Void> changeMyEmail(String userEmail, UserEmailUpdateRequestDto userEmailUpdateRequestDto);
     SuccessResponseDto<UserEmailUpdateResponseDto> verifyMyEmail(String userEmail, UserEmailVerificationRequestDto userEmailVerificationRequestDto);
     SuccessResponseDto<Void> saveBlog(String userEmail, String blogId);
-    SuccessResponseDto<BlogResponseDto> getSavedBlog(String userEmail, String blogId);
     SuccessResponseDto<Page<BlogResponseDto>> getSavedBlogs(String userEmail, Pageable pageable);
     SuccessResponseDto<Void> deleteSavedBlog(String userEmail, String blogId);
 }

@@ -89,12 +89,6 @@ public class UserController {
         return ResponseEntity.ok(userService.saveBlog(principal.getName(), blogId));
     }
 
-    @GetMapping("/blogs/save/{blogId}")
-    public ResponseEntity<SuccessResponseDto<BlogResponseDto>> getSavedBlog(Principal principal,
-                                                                            @Valid @PathVariable String blogId){
-        return ResponseEntity.ok(userService.getSavedBlog(principal.getName(), blogId));
-    }
-
     @GetMapping("/blogs/save")
     public ResponseEntity<SuccessResponseDto<Page<BlogResponseDto>>> getSavedBlogs(Principal principal, Pageable pageable){
         return ResponseEntity.ok(userService.getSavedBlogs(principal.getName(), pageable));
