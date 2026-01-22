@@ -6,7 +6,6 @@ import az.shopery.model.dto.request.UserEmailVerificationRequestDto;
 import az.shopery.model.dto.request.UserPasswordUpdateRequestDto;
 import az.shopery.model.dto.request.UserProfileUpdateRequestDto;
 import az.shopery.model.dto.response.BecomeMerchantResponseDto;
-import az.shopery.model.dto.response.BlogResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.UserEmailUpdateResponseDto;
 import az.shopery.model.dto.response.UserPasswordUpdateResponseDto;
@@ -15,13 +14,9 @@ import az.shopery.service.UserService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -81,20 +76,5 @@ public class UserController {
     public ResponseEntity<SuccessResponseDto<UserEmailUpdateResponseDto>> verifyMyEmail(Principal principal,
                                                                                         @Valid @RequestBody UserEmailVerificationRequestDto userEmailVerificationRequestDto) {
         return ResponseEntity.ok(userService.verifyMyEmail(principal.getName(), userEmailVerificationRequestDto));
-    }
-
-    @PostMapping("/blogs/save/{blogId}")
-    public ResponseEntity<SuccessResponseDto<Void>> saveBlog(Principal principal, @PathVariable String blogId){
-        return ResponseEntity.ok(userService.saveBlog(principal.getName(), blogId));
-    }
-
-    @GetMapping("/blogs/save")
-    public ResponseEntity<SuccessResponseDto<Page<BlogResponseDto>>> getSavedBlogs(Principal principal, Pageable pageable){
-        return ResponseEntity.ok(userService.getSavedBlogs(principal.getName(), pageable));
-    }
-
-    @DeleteMapping("/blogs/save/{blogId}")
-    public ResponseEntity<SuccessResponseDto<Void>> deleteSavedBlog(Principal principal, @PathVariable String blogId){
-        return ResponseEntity.ok(userService.deleteSavedBlog(principal.getName(), blogId));
     }
 }

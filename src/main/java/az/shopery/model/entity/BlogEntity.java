@@ -53,8 +53,11 @@ public class BlogEntity {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     Instant updatedAt;
+    @Builder.Default
+    @Column(name = "is_archived")
+    Boolean isArchived = false;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name =  "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     UserEntity user;
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
     List<BlogLikeEntity> blogLikes;

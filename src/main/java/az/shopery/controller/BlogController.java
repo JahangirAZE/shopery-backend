@@ -71,4 +71,29 @@ public class BlogController {
     public ResponseEntity<SuccessResponseDto<Void>> likeBlog(Principal principal, @PathVariable String blogId) {
         return ResponseEntity.ok(blogLikeService.toggleBlogLike(principal.getName(), blogId));
     }
+
+    @GetMapping("/save")
+    public ResponseEntity<SuccessResponseDto<Page<BlogResponseDto>>> getSavedBlogs(Principal principal, Pageable pageable){
+        return ResponseEntity.ok(blogService.getSavedBlogs(principal.getName(), pageable));
+    }
+
+    @PostMapping("/{blogId}/save")
+    public ResponseEntity<SuccessResponseDto<Void>> saveBlog(Principal principal, @PathVariable String blogId){
+        return ResponseEntity.ok(blogService.saveBlog(principal.getName(), blogId));
+    }
+
+    @DeleteMapping("/{blogId}/save")
+    public ResponseEntity<SuccessResponseDto<Void>> deleteSavedBlog(Principal principal, @PathVariable String blogId){
+        return ResponseEntity.ok(blogService.deleteSavedBlog(principal.getName(), blogId));
+    }
+
+    @GetMapping("/archive")
+    public ResponseEntity<SuccessResponseDto<Page<BlogResponseDto>>> getArchivedBlogs(Principal principal, Pageable pageable) {
+        return ResponseEntity.ok(blogService.getArchivedBlogs(principal.getName(), pageable));
+    }
+
+    @PostMapping("/{blogId}/archive")
+    public ResponseEntity<SuccessResponseDto<Void>> archiveBlog(Principal principal, @PathVariable String blogId) {
+        return ResponseEntity.ok(blogService.toggleBlogArchive(principal.getName(), blogId));
+    }
 }

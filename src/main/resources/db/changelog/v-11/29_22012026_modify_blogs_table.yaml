@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 29_22012026_modify_blogs_table
+      author: Nijat Alizada
+      changes:
+        - addColumn:
+            tableName: blogs
+            columns:
+              - column:
+                  name: is_archived
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
