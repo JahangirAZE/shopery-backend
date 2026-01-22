@@ -2,31 +2,23 @@ package az.shopery.service.impl;
 
 import static az.shopery.utils.common.NameMapperHelper.first;
 import static az.shopery.utils.common.NameMapperHelper.last;
-import static az.shopery.utils.common.UuidUtils.parse;
-
 import az.shopery.handler.exception.EmailAlreadyExistsException;
 import az.shopery.handler.exception.InvalidCredentialsException;
 import az.shopery.handler.exception.ResourceNotFoundException;
-import az.shopery.mapper.BlogMapper;
 import az.shopery.model.dto.request.ShopCreateRequestDto;
 import az.shopery.model.dto.request.UserEmailUpdateRequestDto;
 import az.shopery.model.dto.request.UserEmailVerificationRequestDto;
 import az.shopery.model.dto.request.UserPasswordUpdateRequestDto;
 import az.shopery.model.dto.request.UserProfileUpdateRequestDto;
 import az.shopery.model.dto.response.BecomeMerchantResponseDto;
-import az.shopery.model.dto.response.BlogResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.dto.response.UserEmailUpdateResponseDto;
 import az.shopery.model.dto.response.UserPasswordUpdateResponseDto;
 import az.shopery.model.dto.response.UserProfileResponseDto;
-import az.shopery.model.entity.BlogEntity;
 import az.shopery.model.entity.EmailUpdateTokenEntity;
-import az.shopery.model.entity.SavedBlogEntity;
 import az.shopery.model.entity.UserEntity;
 import az.shopery.model.entity.task.ShopCreationRequestEntity;
-import az.shopery.repository.BlogRepository;
 import az.shopery.repository.EmailUpdateTokenRepository;
-import az.shopery.repository.SavedBlogRepository;
 import az.shopery.repository.ShopRepository;
 import az.shopery.repository.TaskRepository;
 import az.shopery.repository.UserRepository;
@@ -38,8 +30,6 @@ import az.shopery.utils.enums.UserStatus;
 import az.shopery.utils.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,13 +47,10 @@ public class UserServiceImpl implements UserService {
     private final ShopRepository shopRepository;
     private final EmailUpdateTokenRepository emailUpdateTokenRepository;
     private final TaskRepository taskRepository;
-    private final BlogRepository blogRepository;
-    private final SavedBlogRepository savedBlogRepository;
     private final JwtService jwtService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AdminAssignmentHelper adminAssignmentHelper;
-    private final BlogMapper blogMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -224,46 +211,9 @@ public class UserServiceImpl implements UserService {
         return SuccessResponseDto.of(userEmailUpdateResponseDto,"Email has been updated successfully");
     }
 
-    @Override
-    public SuccessResponseDto<Void> saveBlog(String userEmail, String blogId) {
-        UserEntity userEntity = getUserByEmail(userEmail);
-        BlogEntity blogEntity = blogRepository.findById(parse(blogId))
-                .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
-
-        SavedBlogEntity savedBlogEntity = SavedBlogEntity.builder()
-                .blog(blogEntity)
-                .user(userEntity)
-                .build();
-
-        savedBlogRepository.save(savedBlogEntity);
-        return SuccessResponseDto.of("Blog has been saved successfully");
-    }
-
-    @Override
-    @Transactional
-    public SuccessResponseDto<Page<BlogResponseDto>> getSavedBlogs(String userEmail, Pageable pageable) {
-        UserEntity userEntity = getUserByEmail(userEmail);
-        Page<SavedBlogEntity> savedBlogEntities = savedBlogRepository.findAllByUserId(userEntity.getId(), pageable);
-        return SuccessResponseDto.of(savedBlogEntities.map((savedBlogEntity) -> blogMapper.toDto(savedBlogEntity.getBlog())), "Blogs have been retrieved successfully");
-    }
-
-    @Override
-    @Transactional
-    public SuccessResponseDto<Void> deleteSavedBlog(String userEmail, String blogId) {
-        SavedBlogEntity savedBlogEntity = getUserSavedBlog(userEmail, blogId);
-        savedBlogRepository.delete(savedBlogEntity);
-        return SuccessResponseDto.of("Blog has been unsaved successfully");
-    }
-
     private UserEntity getUserByEmail(String userEmail) {
         return userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
-    }
-
-    private SavedBlogEntity getUserSavedBlog(String userEmail, String blogId) {
-        UserEntity userEntity = getUserByEmail(userEmail);
-        return savedBlogRepository.findByBlogIdAndUserId(parse(blogId), userEntity.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Saved blog with this id for the given user not found."));
     }
 
     private UserProfileResponseDto mapToDto(UserEntity userEntity) {

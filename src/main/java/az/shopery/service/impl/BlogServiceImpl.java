@@ -1,15 +1,16 @@
 package az.shopery.service.impl;
 
 import static az.shopery.utils.common.UuidUtils.parse;
-
 import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.mapper.BlogMapper;
 import az.shopery.model.dto.request.BlogRequestDto;
 import az.shopery.model.dto.response.BlogResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.entity.BlogEntity;
+import az.shopery.model.entity.SavedBlogEntity;
 import az.shopery.model.entity.UserEntity;
 import az.shopery.repository.BlogRepository;
+import az.shopery.repository.SavedBlogRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.BlogService;
 import az.shopery.utils.aws.S3FileUtil;
@@ -22,22 +23,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BlogServiceImpl implements BlogService {
-
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
     private final S3FileUtil s3FileUtil;
     private final BlogMapper blogMapper;
+    private final SavedBlogRepository savedBlogRepository;
 
     @Override
     @Transactional
     public SuccessResponseDto<Page<BlogResponseDto>> getMyBlogs(String userEmail, Pageable pageable) {
-        Page<BlogEntity> blogs = blogRepository.getBlogsByUserEmail(userEmail, pageable);
+        Page<BlogEntity> blogs = blogRepository.findAllByUserEmailAndIsArchived(userEmail, Boolean.FALSE, pageable);
         return SuccessResponseDto.of(blogs.map(blogMapper::toDto), "Your blogs retrieved successfully!");
     }
 
@@ -49,9 +49,63 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    public SuccessResponseDto<Void> saveBlog(String userEmail, String blogId) {
+        UserEntity userEntity = getUserByEmail(userEmail);
+        BlogEntity blogEntity = blogRepository.findById(parse(blogId))
+                .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
+
+        SavedBlogEntity savedBlogEntity = SavedBlogEntity.builder()
+                .blog(blogEntity)
+                .user(userEntity)
+                .build();
+
+        savedBlogRepository.save(savedBlogEntity);
+        return SuccessResponseDto.of("Blog has been saved successfully");
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public SuccessResponseDto<Page<BlogResponseDto>> getSavedBlogs(String userEmail, Pageable pageable) {
+        UserEntity userEntity = getUserByEmail(userEmail);
+        Page<SavedBlogEntity> savedBlogEntities = savedBlogRepository.findAllByUserId(userEntity.getId(), pageable);
+        return SuccessResponseDto.of(savedBlogEntities.map((savedBlogEntity) -> blogMapper.toDto(savedBlogEntity.getBlog())), "Blogs have been retrieved successfully");
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public SuccessResponseDto<Void> deleteSavedBlog(String userEmail, String blogId) {
+        SavedBlogEntity savedBlogEntity = getUserSavedBlog(userEmail, blogId);
+        savedBlogRepository.delete(savedBlogEntity);
+        return SuccessResponseDto.of("Blog has been unsaved successfully");
+    }
+
+    @Override
+    public SuccessResponseDto<Void> toggleBlogArchive(String userEmail, String blogId) {
+        BlogEntity blogEntity = blogRepository.findBlogByIdAndUserEmail(parse(blogId), userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Blog with id: " + blogId + " not found!"));
+
+        if(blogEntity.getIsArchived()) {
+            blogEntity.setIsArchived(Boolean.FALSE);
+            blogRepository.save(blogEntity);
+            return SuccessResponseDto.of("Blog has been unarchived successfully!");
+        }
+
+        blogEntity.setIsArchived(Boolean.TRUE);
+        blogRepository.save(blogEntity);
+        return SuccessResponseDto.of("Blog has been archived successfully!");
+    }
+
+    @Transactional
+    @Override
+    public SuccessResponseDto<Page<BlogResponseDto>> getArchivedBlogs(String userEmail, Pageable pageable) {
+        Page<BlogEntity> archivedBlogs = blogRepository.findAllByUserEmailAndIsArchived(userEmail, Boolean.TRUE, pageable);
+        return SuccessResponseDto.of(archivedBlogs.map(blogMapper::toDto), "Archived blogs retrieved successfully!");
+    }
+
+    @Override
     @Transactional
     public SuccessResponseDto<Page<BlogResponseDto>> getAllBlogs(Pageable pageable) {
-        Page<BlogEntity> blogs = blogRepository.findAll(pageable);
+        Page<BlogEntity> blogs = blogRepository.findAllByIsArchived(Boolean.FALSE, pageable);
         return SuccessResponseDto.of(blogs.map(blogMapper::toDto), "All blogs retrieved successfully!");
     }
 
@@ -125,16 +179,18 @@ public class BlogServiceImpl implements BlogService {
     }
 
     private BlogEntity getUserOwnedBlog(String blogId, String userEmail) {
-        UUID id = parse(blogId);
-        BlogEntity blogEntity = blogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found."));
-        UserEntity user = userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email " + userEmail + " not found."));
+        return blogRepository.findByIdAndUserEmailAndIsArchived(parse(blogId), userEmail, Boolean.FALSE)
+                .orElseThrow(() -> new ResourceNotFoundException("Blog not found with id: " + blogId));
+    }
 
-        if(!blogEntity.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Blog not found with id: " + id);
-        }
+    private UserEntity getUserByEmail(String userEmail) {
+        return userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
+    }
 
-        return blogEntity;
+    private SavedBlogEntity getUserSavedBlog(String userEmail, String blogId) {
+        UserEntity userEntity = getUserByEmail(userEmail);
+        return savedBlogRepository.findByBlogIdAndUserId(parse(blogId), userEntity.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Saved blog with this id for the given user not found."));
     }
 }
