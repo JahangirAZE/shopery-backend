@@ -64,7 +64,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public SuccessResponseDto<Page<BlogResponseDto>> getSavedBlogs(String userEmail, Pageable pageable) {
         UserEntity userEntity = getUserByEmail(userEmail);
         Page<SavedBlogEntity> savedBlogEntities = savedBlogRepository.findAllByUserId(userEntity.getId(), pageable);
@@ -72,7 +72,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public SuccessResponseDto<Void> deleteSavedBlog(String userEmail, String blogId) {
         SavedBlogEntity savedBlogEntity = getUserSavedBlog(userEmail, blogId);
         savedBlogRepository.delete(savedBlogEntity);
