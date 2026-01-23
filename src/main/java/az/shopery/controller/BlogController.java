@@ -67,6 +67,11 @@ public class BlogController {
         return ResponseEntity.ok(blogService.updateMyBlog(principal.getName(), blogRequestDto, blogId));
     }
 
+    @GetMapping("/like")
+    public ResponseEntity<SuccessResponseDto<Page<BlogResponseDto>>> getLikedBlogs(Principal principal, Pageable pageable) {
+        return ResponseEntity.ok(blogLikeService.getLikedBlogs(principal.getName(), pageable));
+    }
+
     @PostMapping("/{blogId}/like")
     public ResponseEntity<SuccessResponseDto<Void>> likeBlog(Principal principal, @PathVariable String blogId) {
         return ResponseEntity.ok(blogLikeService.toggleBlogLike(principal.getName(), blogId));
