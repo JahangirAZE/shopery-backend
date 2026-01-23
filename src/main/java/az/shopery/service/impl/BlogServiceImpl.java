@@ -95,8 +95,8 @@ public class BlogServiceImpl implements BlogService {
         return SuccessResponseDto.of("Blog has been archived successfully!");
     }
 
-    @Transactional
     @Override
+    @Transactional
     public SuccessResponseDto<Page<BlogResponseDto>> getArchivedBlogs(String userEmail, Pageable pageable) {
         Page<BlogEntity> archivedBlogs = blogRepository.findAllByUserEmailAndIsArchived(userEmail, Boolean.TRUE, pageable);
         return SuccessResponseDto.of(archivedBlogs.map(blogMapper::toDto), "Archived blogs retrieved successfully!");

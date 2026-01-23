@@ -1,6 +1,8 @@
 package az.shopery.service.impl;
 
 import az.shopery.handler.exception.ResourceNotFoundException;
+import az.shopery.mapper.BlogMapper;
+import az.shopery.model.dto.response.BlogResponseDto;
 import az.shopery.model.dto.response.SuccessResponseDto;
 import az.shopery.model.entity.BlogEntity;
 import az.shopery.model.entity.BlogLikeEntity;
@@ -13,6 +15,8 @@ import az.shopery.utils.enums.UserStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 import static az.shopery.utils.common.UuidUtils.parse;
@@ -24,6 +28,7 @@ public class BlogLikeServiceImpl implements BlogLikeService {
     private final BlogLikeRepository blogLikeRepository;
     private final UserRepository userRepository;
     private final BlogRepository blogRepository;
+    private final BlogMapper blogMapper;
 
     @Transactional
     @Override
@@ -49,5 +54,13 @@ public class BlogLikeServiceImpl implements BlogLikeService {
         } catch (DataIntegrityViolationException e) {
             return SuccessResponseDto.of("Blog is already liked!");
         }
+    }
+
+    @Override
+    @Transactional
+    public SuccessResponseDto<Page<BlogResponseDto>> getLikedBlogs(String userEmail, Pageable pageable) {
+       Page<BlogLikeEntity> blogLikeEntities = blogLikeRepository.findAllByUserEmail(userEmail, pageable);
+       return SuccessResponseDto.of(blogLikeEntities.map(
+               (blogLikeEntity) -> blogMapper.toDto(blogLikeEntity.getBlog())),"Liked blogs retrieved successfully!");
     }
 }
