@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-@Service
 public interface AdminService {
     SuccessResponseDto<Page<UserProfileResponseDto>> getCustomers(Pageable pageable);
     SuccessResponseDto<Page<UserProfileResponseDto>> getMerchants(Pageable pageable);

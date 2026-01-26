@@ -51,7 +51,7 @@ public class UserAddressEntity {
     AddressType addressType = AddressType.HOUSE;
     @Column(name = "is_default", nullable = false)
     @Builder.Default
-    boolean isDefault = false;
+    boolean isDefault = Boolean.FALSE;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     UserEntity user;

@@ -49,5 +49,5 @@ public class SavedBlogEntity {
     Instant savedAt;
     @Builder.Default
     @Column(name = "is_archived")
-    Boolean isArchived = false;
+    Boolean isArchived = Boolean.FALSE;
 }
