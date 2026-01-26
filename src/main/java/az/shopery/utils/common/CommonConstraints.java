@@ -17,4 +17,6 @@ public final class CommonConstraints {
 
     public static final int SIX_DIGIT_VERIFICATION_CODE_MIN = 100000;
     public static final int SIX_DIGIT_VERIFICATION_CODE_MAX = 999999;
+
+    public static final int MAX_ADDRESSES_PER_USER = 6;
 }

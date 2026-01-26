@@ -1,5 +1,6 @@
 package az.shopery.service.impl;
 
+import static az.shopery.utils.common.CommonConstraints.MAX_ADDRESSES_PER_USER;
 import static az.shopery.utils.common.UuidUtils.parse;
 
 import az.shopery.handler.exception.AddressLimitExceededException;
@@ -12,10 +13,9 @@ import az.shopery.model.entity.UserEntity;
 import az.shopery.repository.UserAddressRepository;
 import az.shopery.repository.UserRepository;
 import az.shopery.service.UserAddressService;
+import az.shopery.utils.enums.UserStatus;
 import java.util.List;
 import java.util.UUID;
-
-import az.shopery.utils.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class UserAddressServiceImpl implements UserAddressService {
-
-    private static final int MAX_ADDRESSES_PER_USER = 6;
 
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
@@ -88,7 +86,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         if (wasDefault && !userAddressRepository.findAllByUserId(userId).isEmpty() && !userAddressRepository.existsByUserIdAndIsDefaultTrue(userId)) {
             var first = userAddressRepository.findAllByUserId(userId).getFirst();
-            first.setDefault(true);
+            first.setDefault(Boolean.TRUE);
             userAddressRepository.save(first);
         }
 
@@ -139,7 +137,8 @@ public class UserAddressServiceImpl implements UserAddressService {
     }
 
     private UserEntity getUserByEmail(String userEmail) {
-        return userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
+        return userRepository.findByEmailAndStatus(userEmail, UserStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
     }
 
     private UserAddressEntity getAddressForUser(String userEmail, String addressId) {
