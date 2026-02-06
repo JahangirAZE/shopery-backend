@@ -3,6 +3,7 @@ package az.shopery.utils.common;
 import az.shopery.utils.enums.AddressType;
 import az.shopery.utils.enums.ProductCategory;
 import az.shopery.utils.enums.ProductCondition;
+import az.shopery.utils.enums.SubscriptionTier;
 import az.shopery.utils.enums.TaskCategory;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -29,6 +30,7 @@ public final class CommonConstraints {
             "product-categories", ProductCategory.class,
             "product-conditions", ProductCondition.class,
             "address-types", AddressType.class,
-            "task-types", TaskCategory.class
+            "task-types", TaskCategory.class,
+            "subscription-tiers", SubscriptionTier.class
     );
 }
