@@ -18,7 +18,7 @@ public class DropdownController {
     private final DropdownService dropdownService;
 
     @GetMapping("/{type}")
-    public ResponseEntity<SuccessResponse<List<String>>> getDropdownOptions(@PathVariable String type) {
+    public ResponseEntity<SuccessResponse<List<?>>> getDropdownOptions(@PathVariable String type) {
         return ResponseEntity.ok(dropdownService.getDropdownOptions(type));
     }
 }
