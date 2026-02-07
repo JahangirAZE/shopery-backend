@@ -102,8 +102,11 @@ public class AdminServiceImpl implements AdminService {
         if (!(taskEntity instanceof SupportTicketEntity supportTicketEntity)) {
             throw new IllegalRequestException("Task is not a support ticket!");
         }
-        supportTicketEntity.setTicketStatus(TicketStatus.CLOSED);
+        if (supportTicketEntity.getTicketStatus().equals(TicketStatus.CLOSED)) {
+            throw new  IllegalRequestException("Ticket already closed!");
+        }
 
+        supportTicketEntity.setTicketStatus(TicketStatus.CLOSED);
         return SuccessResponse.of("Support ticket has been closed successfully!");
     }
 
@@ -111,6 +114,9 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public SuccessResponse<Void> approve(String id, String userEmail) {
         ShopCreationRequestEntity shopCreationRequestEntity = getShopCreationRequestEntity(id, userEmail);
+        if (!shopCreationRequestEntity.getRequestStatus().equals(RequestStatus.PENDING)) {
+            throw new IllegalRequestException("Shop creation request is not pending!");
+        }
 
         ShopEntity shop = ShopEntity.builder()
                 .user(shopCreationRequestEntity.getCreatedBy())
