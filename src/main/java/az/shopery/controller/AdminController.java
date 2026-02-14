@@ -2,6 +2,7 @@ package az.shopery.controller;
 
 import az.shopery.model.dto.request.CloseMerchantRequestDto;
 import az.shopery.model.dto.request.ShopCreationRequestRejectDto;
+import az.shopery.model.dto.response.ApplicationInfoResponseDto;
 import az.shopery.model.dto.shared.SuccessResponse;
 import az.shopery.model.dto.response.UserProfileResponseDto;
 import az.shopery.model.dto.response.task.TaskResponseDto;
@@ -64,5 +65,10 @@ public class AdminController {
     @PostMapping("/tasks/{id}/reject")
     public ResponseEntity<SuccessResponse<Void>> reject(@PathVariable String id, @Valid @RequestBody ShopCreationRequestRejectDto shopCreationRequestRejectDto, Principal principal) {
         return ResponseEntity.ok(adminService.reject(id, principal.getName(), shopCreationRequestRejectDto));
+    }
+
+    @GetMapping("/application/info")
+    public ResponseEntity<SuccessResponse<ApplicationInfoResponseDto>> getApplicationInfo(Principal principal) {
+        return ResponseEntity.ok((adminService.getApplicationInfo(principal.getName())));
     }
 }

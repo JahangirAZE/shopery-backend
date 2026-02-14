@@ -9,6 +9,7 @@ import az.shopery.handler.exception.ResourceNotFoundException;
 import az.shopery.mapper.TaskMapper;
 import az.shopery.model.dto.request.CloseMerchantRequestDto;
 import az.shopery.model.dto.request.ShopCreationRequestRejectDto;
+import az.shopery.model.dto.response.ApplicationInfoResponseDto;
 import az.shopery.model.dto.shared.SuccessResponse;
 import az.shopery.model.dto.response.UserProfileResponseDto;
 import az.shopery.model.dto.response.task.TaskResponseDto;
@@ -93,6 +94,25 @@ public class AdminServiceImpl implements AdminService {
                 : taskRepository.findAllByAssignedAdminAndTaskCategory(assignedAdmin, taskCategory, pageable);
 
         return SuccessResponse.of(tasks.map(taskMapper::toDto), "Tasks are retrieved successfully!");
+    }
+
+    @Override
+    public SuccessResponse<ApplicationInfoResponseDto> getApplicationInfo(String userEmail) {
+        UserEntity assignedAdmin = getAdmin(userEmail);
+
+        Integer totalCustomers = userRepository.countAllByUserRoleAndStatus(UserRole.CUSTOMER, UserStatus.ACTIVE);
+        Integer totalMerchants = userRepository.countAllByUserRoleAndStatus(UserRole.MERCHANT, UserStatus.ACTIVE);
+        Integer pendingSupportTickets = taskRepository.countSupportTicketsByStatusAndAdmin(TicketStatus.OPEN, assignedAdmin.getId());
+        Integer pendingShopCreationRequests = taskRepository.countShopRequestsByStatusAndAdmin(RequestStatus.PENDING, assignedAdmin.getId());
+
+        ApplicationInfoResponseDto applicationInfo = ApplicationInfoResponseDto.builder()
+                .totalCustomers(totalCustomers)
+                .totalMerchants(totalMerchants)
+                .pendingSupportTickets(pendingSupportTickets)
+                .pendingShopCreationRequests(pendingShopCreationRequests)
+                .build();
+
+        return SuccessResponse.of(applicationInfo, "Application info retrieved successfully!");
     }
 
     @Override
