@@ -117,6 +117,7 @@ public class UserServiceImpl implements UserService {
         if (shopRepository.existsByUser(userEntity)) {
             throw new IllegalRequestException("User already has a shop.");
         }
+
         if (shopRepository.existsByShopName(shopCreateRequestDto.getShopName())) {
             throw new IllegalRequestException("Shop with name '" + shopCreateRequestDto.getShopName() + "' already exists.");
         }
