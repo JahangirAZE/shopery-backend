@@ -27,7 +27,7 @@ import lombok.experimental.SuperBuilder;
 public class ShopCreationRequestEntity extends TaskEntity {
     @Column(name = "shop_name", nullable = false)
     String shopName;
-    @Column(name = "description")
+    @Column(name = "shop_description")
     String description;
     @Enumerated(EnumType.STRING)
     @Builder.Default
