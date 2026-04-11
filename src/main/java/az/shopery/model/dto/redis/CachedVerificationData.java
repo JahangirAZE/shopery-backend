@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -15,10 +16,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CachedVerificationData {
+    @ToString.Exclude
     String hashedToken;
-    String userName;
+    @ToString.Exclude
     String userEmail;
+    @ToString.Exclude
     String hashedPassword;
+    String userName;
     int attemptCount;
     VerificationProgress progress;
     LocalDateTime expiryDate;

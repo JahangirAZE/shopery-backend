@@ -176,7 +176,7 @@ public class AuthServiceImpl implements AuthService {
                 Duration.ofMinutes(VERIFICATION_CODE_EXPIRY_MINUTES)
         );
 
-        redisService.set(
+        redisService.setIfAbsent(
                 RedisUtils.registerCooldownKey(email),
                 "1",
                 Duration.ofSeconds(COOLDOWN_SECONDS)
@@ -221,8 +221,8 @@ public class AuthServiceImpl implements AuthService {
                 Duration.ofMinutes(RESET_TOKEN_EXPIRY_MINUTES)
         );
 
-        redisService.set(
-                RedisUtils.resetCooldownKey(token),
+        redisService.setIfAbsent(
+                RedisUtils.resetCooldownKey(email),
                 "1",
                 Duration.ofSeconds(COOLDOWN_SECONDS)
         );

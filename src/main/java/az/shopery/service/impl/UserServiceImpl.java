@@ -199,6 +199,10 @@ public class UserServiceImpl implements UserService {
                 .get(RedisUtils.emailUpdateKey(userEmailVerificationRequestDto.getEmail()), CachedEmailUpdateData.class)
                 .orElseThrow(() -> new ResourceNotFoundException("No pending verification found! It may have expired or been verified already!"));
 
+        if (!cachedEmailUpdateData.getRequestedByEmail().equals(userEmail)) {
+            throw new InvalidCredentialsException("Invalid verification request.");
+        }
+
         if (!cachedEmailUpdateData.getCode().equals(userEmailVerificationRequestDto.getCode())) {
             throw new InvalidCredentialsException("Invalid verification code!");
         }

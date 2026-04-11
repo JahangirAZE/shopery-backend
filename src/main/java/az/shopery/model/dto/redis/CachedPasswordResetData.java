@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -14,7 +15,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CachedPasswordResetData {
+    @ToString.Exclude
     String token;
+    @ToString.Exclude
     String userEmail;
     LocalDateTime expiryDate;
     LocalDateTime linkLastSentAt;
