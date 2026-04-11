@@ -1,6 +1,5 @@
 package az.shopery.model.dto.redis;
 
-import az.shopery.utils.enums.VerificationProgress;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,6 @@ public class CachedVerificationData {
     String hashedPassword;
     String userName;
     int attemptCount;
-    VerificationProgress progress;
     LocalDateTime expiryDate;
     LocalDateTime codeLastSentAt;
 }

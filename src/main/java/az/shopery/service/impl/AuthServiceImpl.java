@@ -32,7 +32,6 @@ import az.shopery.utils.common.RedisUtils;
 import az.shopery.utils.enums.NotificationType;
 import az.shopery.utils.enums.UserRole;
 import az.shopery.utils.enums.UserStatus;
-import az.shopery.utils.enums.VerificationProgress;
 import az.shopery.utils.security.JwtService;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -74,7 +73,6 @@ public class AuthServiceImpl implements AuthService {
                 .userEmail(email)
                 .hashedPassword(passwordEncoder.encode(userRegisterRequestDto.getPassword()))
                 .attemptCount(0)
-                .progress(VerificationProgress.PENDING)
                 .expiryDate(LocalDateTime.now().plusMinutes(VERIFICATION_CODE_EXPIRY_MINUTES))
                 .codeLastSentAt(LocalDateTime.now())
                 .build();
@@ -104,7 +102,6 @@ public class AuthServiceImpl implements AuthService {
         String email = verificationRequestDto.getEmail();
         CachedVerificationData cachedVerificationData = redisService
                 .get(RedisUtils.registerKey(email), CachedVerificationData.class)
-                .filter(data -> data.getProgress().equals(VerificationProgress.PENDING))
                 .orElseThrow(() -> new ResourceNotFoundException("No pending verification found. It may have expired or been verified already."));
 
         if (cachedVerificationData.getExpiryDate().isBefore(LocalDateTime.now())) {
@@ -170,7 +167,6 @@ public class AuthServiceImpl implements AuthService {
                 .userEmail(email)
                 .hashedPassword(existing.getHashedPassword())
                 .attemptCount(0)
-                .progress(VerificationProgress.PENDING)
                 .expiryDate(LocalDateTime.now().plusMinutes(VERIFICATION_CODE_EXPIRY_MINUTES))
                 .codeLastSentAt(LocalDateTime.now())
                 .build();
